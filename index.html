@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lokaly Prototype</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lokaly">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F5F6F4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="desk">
+  <aside class="side" id="side" aria-label="Prototype controls"></aside>
+  <div class="desk-scrim" data-menu="close" aria-hidden="true"></div>
+  <div class="stage" id="stage">
+    <div class="mobile-bar" role="group" aria-label="Show phone"><button type="button" class="sbtn menu-btn" data-menu="open" aria-label="Open the desk" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button><button type="button" class="sbtn on" data-solo="business" aria-pressed="true">Business<span class="wide"> phone</span></button><button type="button" class="sbtn" data-solo="creator" aria-pressed="false">Creator<span class="wide"> phone</span></button></div>
+    <section class="dev business" aria-label="Business phone">
+      <div class="dev-cap" id="cap-business"></div>
+      <div class="dev-wrap"><div class="phone"><div id="ph-business"></div></div></div>
+    </section>
+    <section class="dev creator" aria-label="Creator phone">
+      <div class="dev-cap" id="cap-creator"></div>
+      <div class="dev-wrap"><div class="phone"><div id="ph-creator"></div></div></div>
+    </section>
+  </div>
+</div>
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/i18n/es-core.js"></script>
+<script src="js/i18n/es-seed.js"></script>
+<script src="js/i18n/es-shared.js"></script>
+<script src="js/i18n/es-business.js"></script>
+<script src="js/i18n/es-creator.js"></script>
+<script src="js/motion.js"></script>
+<script src="js/core.js"></script>
+<script src="js/screens-shared.js"></script>
+<script src="js/screens-business.js"></script>
+<script src="js/screens-creator.js"></script>
+<script src="js/emails.js"></script>
+<script src="js/shell.js"></script>
+</body>
+</html>
