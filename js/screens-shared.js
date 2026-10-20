@@ -11,8 +11,8 @@
   /* ───────── S-02 Welcome ───────── */
   S('S-02', { name: 'Welcome', dark: true, bleed: true, render:(x) => {
     const lang = x.w.lang;
-    return '<div style="position:relative;height:844px;color:#fff">' + C.ph(L.img('coast'), 'position:absolute;inset:0;background-position:30% center', t('The Marbella coastline at golden hour')) +
-      '<div aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(rgba(10,12,14,.15) 0%,rgba(10,12,14,0) 30%,rgba(10,12,14,.75) 72%,rgba(10,12,14,.92))"></div>' +
+    return '<div style="position:relative;height:844px;min-height:100%;color:#fff">' + C.ph(L.img('welcome'), 'position:absolute;inset:0;background-position:center top', t('An infinity pool above the Marbella coastline at golden hour')) +
+      '<div aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(rgba(18,24,33,.55) 0%,rgba(18,24,33,0) 22%,rgba(10,12,14,0) 30%,rgba(10,12,14,.75) 72%,rgba(10,12,14,.92))"></div>' +
       '<div style="position:absolute;top:58px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center"><span class="serif" style="font-size:28px">Lokaly</span>' +
       '<div class="seg" role="radiogroup" aria-label="' + esc(t('Language')) + '" style="background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)">' +
       ['en', 'es'].map((l) => '<button type="button" role="radio" aria-checked="' + (lang === l) + '" class="' + (lang === l ? 'on' : '') + '" data-act="setLang" data-arg="' + l + '" style="min-width:52px;' + (lang === l ? '' : 'color:#fff') + '">' + l.toUpperCase() + '</button>').join('') + '</div></div>' +

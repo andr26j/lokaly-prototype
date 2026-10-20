@@ -7,6 +7,15 @@
   L.seen = new Set();
   L.listeners = [];
 
+  /* Installed app: the status bar sits outside the page, so tint it to the showing screen (light ground, noir, or the dark welcome). */
+  L.statusBar = () => {
+    if (!document.documentElement.classList.contains('app')) return;
+    const p = L.phones.find((x) => x.role === L.focusRole) || L.phones[0]; if (!p) return;
+    const c = { noir: '#17181B', dark: '#121821' }[p.tone] || '#F5F6F4';
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', c));
+    document.documentElement.style.background = c; document.body.style.background = c;
+  };
+
   /* ───────── helpers ───────── */
   const t = L.t;
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -616,6 +625,7 @@
     const toast = this.toastMsg ? '<div class="toast" role="status" data-k="t' + this.toastK + '" data-ov="toast">' + L.I('check', 16, 2.4) + esc(this.toastMsg) + '</div>' : '';
     const tone = (bdef.noir ? ' noir' : '') + (bdef.dark ? ' dark' : '');
     this.scr.className = 'scr' + tone; this.scr.dataset.screen = base.id; this.scr.dataset.role = this.role;
+    this.tone = bdef.noir ? 'noir' : bdef.dark ? 'dark' : ''; L.statusBar();
 
     this.seenK = new Set();
     const k = M.key(base);

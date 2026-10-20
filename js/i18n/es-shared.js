@@ -30,6 +30,7 @@ L.addES({
 
   /* S-02 Welcome */
   'The Marbella coastline at golden hour': 'La costa de Marbella a la hora dorada',
+  'An infinity pool above the Marbella coastline at golden hour': 'Una piscina infinita sobre la costa de Marbella a la hora dorada',
   'The coast,<br><i>as locals</i> post it.': 'La costa,<br><i>como la publican</i> los de aquí.',
   'Marbella businesses meet the creators who already love them. Payments held safely until the post is live.': 'Los negocios de Marbella conocen a los creadores que ya los adoran. El pago queda retenido de forma segura hasta que la publicación esté en línea.',
   'Get started': 'Empezar',

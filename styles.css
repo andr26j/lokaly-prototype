@@ -161,8 +161,9 @@ html.app body { -webkit-user-select: none; user-select: none; overscroll-behavio
 html.app :is(input, textarea, [contenteditable]) { -webkit-user-select: text; user-select: text; }
 @media (max-width: 500px) {
   html.app .mobile-bar { display: none; }
-  /* The status bar sits outside the page here, so crop the frame's island padding (--sb) instead of leaving a blank band. */
-  html.app .phone { transform: translateY(calc(-1 * var(--sb, 0px))) scale(var(--s, 1)); height: calc((100dvh + var(--sb, 0px)) / var(--s, 1)); }
+  /* Screens keep a 62pt island pad. Drawn under the status bar (safe-area ≈ 59pt) that pad is right; with the status bar outside the page (inset 0) crop 52pt of it so content doesn't sit below a blank band. */
+  html.app { --sb: max(0px, calc(52px * var(--s, 1) - env(safe-area-inset-top))); }
+  html.app .phone { transform: translateY(calc(-1 * var(--sb))) scale(var(--s, 1)); height: calc((100dvh + var(--sb)) / var(--s, 1)); }
   .side-phone { display: none; }
   html.app .side-phone { display: block; }
   .app-hint { position: fixed; z-index: 150; left: 50%; bottom: calc(110px + env(safe-area-inset-bottom)); transform: translateX(-50%); max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 999px; background: rgba(20,23,26,.88); color: #F4F4F2; font-size: 13px; font-weight: 500; text-align: center; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); transition: opacity .4s; pointer-events: none; }

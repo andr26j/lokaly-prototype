@@ -110,7 +110,7 @@
   /* ───────── sidebar ───────── */
   const side = () => document.getElementById('side');
   L.setSolo = function (role) {
-    L.focusRole = role; const st = document.getElementById('stage'); st.classList.toggle('solo-business', role === 'business'); st.classList.toggle('solo-creator', role === 'creator');
+    L.focusRole = role; if (L.statusBar) L.statusBar(); const st = document.getElementById('stage'); st.classList.toggle('solo-business', role === 'business'); st.classList.toggle('solo-creator', role === 'creator');
     st.querySelectorAll('[data-solo]').forEach((b) => { const on = b.dataset.solo === role; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
     renderSide();
   };
@@ -122,7 +122,7 @@
     const seen = all.filter((id) => L.seen.has(id)).length;
     const here = L.phones.map((p) => p.current());
     let h = '<div class="brand"><h1>Lokaly</h1><span>Clickable prototype · v1 · two phones, one world</span><button type="button" class="sbtn side-close" data-menu="close">Done</button></div>' +
-      '<div class="sec side-phone"><h2>Phone</h2><div class="row2" role="group" aria-label="Show phone">' + sbtn('Business · Marta', 'solo:business', L.focusRole === 'business') + sbtn('Creator · Lucía', 'solo:creator', L.focusRole === 'creator') + '</div><span class="ops">Two-finger tap anywhere opens these controls.</span></div>';
+      '<div class="sec side-phone"><h2>Phone</h2><div class="row2" role="group" aria-label="Show phone">' + sbtn('Business · Marta', 'solo:business', L.focusRole === 'business') + sbtn('Creator · Lucía', 'solo:creator', L.focusRole === 'creator') + '</div><span class="ops">Two-finger tap anywhere opens these controls.</span><span class="ops" id="diag" style="opacity:.6;font-size:11px"></span></div>';
     if (L.tour) {
       const t = L.tour; let cur = -1;
       const done = t.steps.map((s) => L.tourSeen[s.role].has(s.id));
@@ -155,6 +155,9 @@
       }).join('') + '</div>').join('') + '</div>';
     h += '<div class="sec"><h2>About</h2><p class="ops" style="margin:0">Screen IDs match SCREEN_INVENTORY.md. B-00 / C-00 are the Home tabs from the reference prototype. Placeholders in [brackets] wait on Matt (Plus price, legal text, dispute SLA). EN + draft ES: switch in S-02, S-17 or here; ES strings live in js/i18n/ and wait on the native reviewer.</p></div>';
     side().innerHTML = h;
+    const dg = document.getElementById('diag');
+    if (dg) { const pr = document.createElement('div'); pr.style.cssText = 'position:fixed;top:0;height:env(safe-area-inset-top)'; document.body.appendChild(pr);
+      dg.textContent = 'Layout ' + screen.height + '/' + window.innerHeight + ' · top inset ' + pr.offsetHeight + ' · ' + (navigator.standalone ? 'home screen' : 'browser'); pr.remove(); }
   }
   L.renderSide = renderSide;
   L.listeners.push(renderSide);
@@ -205,9 +208,6 @@
     const st = document.getElementById('stage'); if (!st) return;
     if (mobile()) {
       document.documentElement.style.setProperty('--s', Math.min(1.2, window.innerWidth / 390).toFixed(4));
-      // Installed app with the status bar outside the page: its height is what the screen loses; never crop more than the 62px island pad.
-      const sb = document.documentElement.classList.contains('app') ? Math.max(0, Math.min(54, screen.height - window.innerHeight)) : 0;
-      document.documentElement.style.setProperty('--sb', sb + 'px');
       return;
     }
     document.querySelector('.desk').classList.remove('menu-open');
