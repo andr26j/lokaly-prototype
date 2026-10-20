@@ -121,7 +121,8 @@
     const all = [].concat(L.INVENTORY.Shared, L.INVENTORY.Business, L.INVENTORY.Creator, L.INVENTORY.Emails);
     const seen = all.filter((id) => L.seen.has(id)).length;
     const here = L.phones.map((p) => p.current());
-    let h = '<div class="brand"><h1>Lokaly</h1><span>Clickable prototype · v1 · two phones, one world</span><button type="button" class="sbtn side-close" data-menu="close">Done</button></div>';
+    let h = '<div class="brand"><h1>Lokaly</h1><span>Clickable prototype · v1 · two phones, one world</span><button type="button" class="sbtn side-close" data-menu="close">Done</button></div>' +
+      '<div class="sec side-phone"><h2>Phone</h2><div class="row2" role="group" aria-label="Show phone">' + sbtn('Business · Marta', 'solo:business', L.focusRole === 'business') + sbtn('Creator · Lucía', 'solo:creator', L.focusRole === 'creator') + '</div><span class="ops">Two-finger tap anywhere opens these controls.</span></div>';
     if (L.tour) {
       const t = L.tour; let cur = -1;
       const done = t.steps.map((s) => L.tourSeen[s.role].has(s.id));
@@ -186,9 +187,9 @@
     }
     else if (a === 'mail') L.openEmail(W.emails[+x]);
     else if (a === 'jump') L.jump(x);
-    else if (a === 'solo') L.setSolo(x);
+    else if (a === 'solo') { L.setSolo(x); renderSide(); }
     // On a phone the desk is a sheet over the app: close it once the action shows something in the app.
-    if (/^(reset|tour|sys|jump|mail|adv|resolve)$/.test(a)) setMenu(false);
+    if (/^(reset|tour|sys|jump|mail|adv|resolve|solo)$/.test(a)) setMenu(false);
   }
   const mobile = () => window.matchMedia('(max-width: 500px)').matches;
   function setMenu(open) {
@@ -202,7 +203,13 @@
   /* ───────── boot ───────── */
   function fit() {
     const st = document.getElementById('stage'); if (!st) return;
-    if (mobile()) { document.documentElement.style.setProperty('--s', Math.min(1.2, window.innerWidth / 390).toFixed(4)); return; }
+    if (mobile()) {
+      document.documentElement.style.setProperty('--s', Math.min(1.2, window.innerWidth / 390).toFixed(4));
+      // Installed app with the status bar outside the page: its height is what the screen loses; never crop more than the 62px island pad.
+      const sb = document.documentElement.classList.contains('app') ? Math.max(0, Math.min(54, screen.height - window.innerHeight)) : 0;
+      document.documentElement.style.setProperty('--sb', sb + 'px');
+      return;
+    }
     document.querySelector('.desk').classList.remove('menu-open');
     const narrow = window.innerWidth <= 1180;
     const availH = (narrow ? window.innerHeight * 0.92 : window.innerHeight) - 80;
@@ -229,5 +236,15 @@
     if (startTour) L.startTour(startTour);
     L.setSolo('business');
     fit(); window.addEventListener('resize', fit);
+    if (document.documentElement.classList.contains('app')) {
+      // No visible prototype chrome in the installed app: a two-finger tap opens the desk.
+      document.addEventListener('touchstart', (e) => { if (e.touches.length === 2 && !document.querySelector('.desk.menu-open')) { e.preventDefault(); setMenu(true); } }, { passive: false });
+      document.addEventListener('gesturestart', (e) => e.preventDefault());
+      let seenHint = false; try { seenHint = localStorage.getItem('lk-app-hint') === '1'; localStorage.setItem('lk-app-hint', '1'); } catch (e) {}
+      if (!seenHint) {
+        const h = document.createElement('div'); h.className = 'app-hint'; h.textContent = 'Tap with two fingers for prototype controls';
+        document.body.appendChild(h); setTimeout(() => { h.style.opacity = '0'; setTimeout(() => h.remove(), 500); }, 4500);
+      }
+    }
   });
 })();
