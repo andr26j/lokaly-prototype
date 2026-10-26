@@ -3,11 +3,12 @@
   const L = window.L, C = L.C, I = L.I, esc = L.esc;
   const t = L.t;
   const S = (id, def) => { L.S[id] = Object.assign({ role: 'creator' }, def); };
-  L.cfz = (ph) => (ph.cfz = ph.cfz || { town: 'All towns', type: 'all', cats: [], km: 25, minRate: 0, q: '' });
+  L.cfz = (ph) => (ph.cfz = ph.cfz || { town: 'All towns', type: 'all', cats: [], km: 35, minRate: 0, q: '' });
   /* deliverable labels: '2 × Instagram Reel' and the short '2 Reel' */
   const dlv = (d) => t('{n} × {platform} {format}', { n: d.count, platform: d.platform, format: t(d.format) });
   const dlvShort = (d) => t('{n} {format}', { n: d.count, format: t(d.format) });
   const payoutLabel = (st) => t({ verified: 'Verified', review: 'In review', action: 'Action needed', none: 'Not set up' }[st]);
+  const wStatus = (w) => ({ paid: [t('Paid@@payout'), 'mint'], pending: [t('On its way'), 'lilac'], failed: [t('Failed'), 'red'] }[w.status]);
 
   /* ───────── C-00 Home ───────── */
   S('C-00', { name: 'Creator home', tab: 'C-00', render: (x) => {
@@ -15,9 +16,10 @@
     const active = mine.filter((c) => ['active', 'submitted'].includes(c.status));
     const heldCol = active.find((c) => L.camp(c.campaignId).type === 'paid');
     const held = active.filter((c) => L.camp(c.campaignId).type === 'paid').reduce((s, c) => s + L.netC(L.camp(c.campaignId).rate), 0);
-    const paid = L.W.payouts.filter((p) => p.creatorId === me.id).reduce((s, p) => s + p.net, 0);
+    const bal = L.walletBalance();
     const next = active.filter((c) => c.status === 'active' && !(c.visitDate && c.visitDate < L.W.now)).sort((a, z) => (a.visitDate || 9e15) - (z.visitDate || 9e15))[0];
-    const nearby = L.W.campaigns.filter((k) => k.status === 'active' && k.km <= 25 && !L.isEarly(k)).length;
+    const open = L.W.campaigns.filter((k) => k.status === 'active' && L.slotsLeft(k) > 0);
+    const nearby = open.filter((k) => k.km <= 35).length;
     const ig = me.socials.ig;
     let h = '<div class="pad stack g20" style="padding-top:58px"><div class="hrow"><span class="serif grow" style="font-size:26px;line-height:1">Lokaly</span><span class="meta num">' + L.date(L.W.now) + '</span>' + C.bell('creator') + '</div>' +
       '<div class="stack g4"><span style="font-size:17px;color:var(--ink3)">' + t('Hello,') + '</span><h1 class="lt xl">' + esc(me.first || t('there')) + '.</h1><span class="sub">' + t("Here's your week on the coast.") + '</span></div></div>';
@@ -28,10 +30,10 @@
     h += '<div class="pad stack g28" style="margin-top:-26px;position:relative">';
     if (L.crMeter() < 100) h += C.meterCard('creator');
     h += '<div class="tiles">' +
-      C.tile({ tone: 'peach', label: t('Paid to you'), value: t('<sup>€</sup>{n}', { n: '<span' + L.tk('c:paid', Math.round(paid), 'num') + '>' + Math.round(paid) + '</span>' }), sub: t('all time, after fees'), foot: L.pl(L.W.payouts.filter((p) => p.creatorId === me.id).length, 'payout'), foot2: held ? t('{amt} held', { amt: L.eur(held) }) : '', go: 'C-18' }) +
+      C.tile({ tone: 'peach', label: t('Wallet'), value: t('<sup>€</sup>{n}', { n: '<span' + L.tk('c:wallet', Math.round(bal), 'num') + '>' + Math.round(bal) + '</span>' }), sub: t('ready to withdraw'), foot: t('10% when you withdraw'), foot2: held ? t('{amt} held', { amt: L.eur(held) }) : '', go: 'C-18' }) +
       C.tile({ tone: 'lilac', label: t('Next collab'), value: next && next.visitDate ? (() => { const sod = (v) => new Date(v).setHours(0, 0, 0, 0); const n = Math.max(0, Math.round((sod(next.visitDate) - sod(L.W.now)) / L.D)); return n === 1 ? t('{n}<small> day</small>', { n }) : t('{n}<small> days</small>', { n }); })() : next ? t('Set<small> date</small>') : '—', sub: next ? L.colBiz(next).name + (next.visitDate ? ' · ' + L.date(next.visitDate) : '') : t('nothing booked'), foot: next ? L.camp(next.campaignId).title : t('Apply to start'), go: next ? 'S-12:' + next.id : 'C-06' }) +
-      C.tile({ tone: 'mint', label: t('Applications'), value: L.W.crMe.plus ? String(L.W.crMe.appsUsed) : L.W.crMe.appsUsed + '<small>/' + L.W.crMe.appsCap + '</small>', sub: L.W.crMe.plus ? t('this month · unlimited') : t('used this month'), foot: t('{n} pending', { n: mine.filter((c) => c.status === 'applied').length }), foot2: L.W.crMe.plus ? t('Plus') : t('Free'), go: 'C-14' }) +
-      C.tile({ tone: 'sky', label: t('Open near you'), value: String(nearby), sub: t('campaigns within 25 km'), foot: t('{n} in early access', { n: L.W.campaigns.filter((k) => L.isEarly(k)).length }), go: 'C-06' }) + '</div>';
+      C.tile({ tone: 'mint', label: t('Applications'), value: String(mine.filter((c) => c.history[0].s === 'applied' && L.W.now - c.history[0].at < 30 * L.D).length), sub: t('sent this month · no limit'), foot: t('{n} pending', { n: mine.filter((c) => c.status === 'applied').length }), go: 'C-14' }) +
+      C.tile({ tone: 'sky', label: t('Open near you'), value: String(nearby), sub: t('campaigns within 35 km'), foot: t('{n} new this week', { n: open.filter((k) => L.W.now - k.published < 7 * L.D).length }), go: 'C-06' }) + '</div>';
     const todo = mine.filter((c) => ['invited', 'active', 'submitted', 'awaiting', 'applied'].includes(c.status));
     h += '<div class="stack g12"><div class="hrow between"><h2 class="h2">' + t('On your plate') + '</h2><button type="button" class="link" data-tab="C-14">' + t('All work') + '</button></div>' + (todo.length ? C.list(todo.map((c) => C.collabRow(c, 'creator'))) : C.empty({ icon: 'work', title: t('Nothing yet'), body: t('Find a campaign you love and apply. It takes a minute.'), cta: C.btn(t('Find campaigns'), { kind: 'dark', sm: 1, tab: 'C-06' }) })) + '</div>';
     const act = L.W.notifs.creator.slice().sort((a, z) => z.at - a.at).slice(0, 4);
@@ -58,7 +60,7 @@
       C.field({ label: t('First name'), bind: 'o.first', value: o.first, live: 1, auto: 'given-name' }) +
       C.field({ label: t('Last name'), bind: 'o.last', value: o.last, live: 1, auto: 'family-name', help: t('Private. Never shown to businesses or in notifications.') }) +
       C.field({ label: t('Lokaly username'), bind: 'o.username', value: o.username, pre: '@', live: 1, auto: 'username', err: taken ? t('That username is taken') : bad ? t('3–24 letters, numbers, dots or underscores') : null, help: t('For signing in and support. Not shown on your profile.') }) +
-      C.banner('info', 'lock', t('Businesses see your <b>first name only</b> until they unlock your handles.')), 'cob2', ok);
+      C.banner('info', 'lock', t('Businesses see your <b>first name</b>. Your surname is never shown.')), 'cob2', ok);
   } });
   L.A.cob2 = (ph) => ph.go('C-03');
   S('C-03', { name: 'Onboarding · Niches & town', render: (x) => {
@@ -106,7 +108,12 @@
     const item = (k, title, sub, go) => '<div class="row"><span class="check' + (m[k] ? ' on' : '') + '" aria-hidden="true">' + (m[k] ? I('check', 15, 3) : '') + '</span><span class="rt"><b>' + t(title) + '</b><span>' + t(sub) + '</span></span>' + (m[k] ? '<span class="meta">' + t('Done') + '</span>' : C.btn(t('Add'), { kind: 'sec', sm: 1, go, aria: t('Add {item}', { item: t(title) }) })) + '</div>';
     return C.list([item('photo', 'Profile photo', 'A clear face photo', 'C-24'), item('bio', 'Bio', 'Two lines about your style', 'C-24'), item('portfolio', 'Portfolio', '3 or more photos of your work', 'C-25'), item('social', 'A connected social', 'Instagram or TikTok, or self-reported', 'C-26')]);
   };
-  S('C-05', { name: 'Profile checklist', sheet: true, render: () => C.sheetHead(t('Finish your profile'), t('Profile {pct} · complete it to apply to campaigns.', { pct: L.pct(L.crMeter()) })) + C.meter(L.crMeter()) + '<div class="mt16">' + crChecklist() + '</div>' });
+  // v2: profiles are complete before entering the app. Required step after the primers: no close, Continue at 100%.
+  S('C-05', { name: 'Finish your profile', render: (x) => {
+    const pct = L.crMeter();
+    x.fix(C.abar({ btn: C.btn(t('Continue'), { kind: 'dark', full: 1, act: 'profileDone', dis: pct < 100 }) }));
+    return '<div class="pad stack g20" style="padding-top:110px"><div class="stack g6"><span class="meta">' + t('Last step') + '</span><h1 class="lt">' + t('Finish your profile') + '</h1><p class="sub" style="margin:0">' + t('Businesses only see complete profiles. Finish it to enter Lokaly. You\'re at {pct}.', { pct: L.pct(pct) }) + '</p></div>' + C.meter(pct) + crChecklist() + '</div>';
+  } });
 
   /* ───────── C-06 Discover campaigns ───────── */
   L.filterCampaigns = (ph) => {
@@ -122,8 +129,7 @@
   };
   const typeSeg = (cur) => C.seg('z.type', [{ v: 'all', label: t('All') }, { v: 'paid', label: t('Paid') }, { v: 'experience', label: t('Experience') }], cur);
   S('C-06', { name: 'Discover campaigns', tab: 'C-06', render: (x) => {
-    const f = L.cfz(x.ph); const all = L.filterCampaigns(x.ph); const plus = !!L.W.crMe.plus;
-    const early = all.filter(L.isEarly), open = all.filter((k) => !L.isEarly(k));
+    const f = L.cfz(x.ph); const open = L.filterCampaigns(x.ph);
     const loc = L.W.perms.creator.location === 'granted';
     let h = '<div class="pad top-pad stack g16"><div class="hrow between"><span class="meta">' + t('Discover') + '</span>' + C.bell('creator') + '</div><h1 class="lt">' + t("What's on in<br><i>{place}</i>", { place: esc(f.town === 'All towns' ? t('the Costa del Sol') : t(f.town)) }) + '</h1>' +
       '<div class="hrow g8"><label class="search grow">' + I('search', 18, 2) + '<span class="sr">' + t('Search campaigns') + '</span><input data-bind="z.q" data-live="1" placeholder="' + esc(t('Venue, campaign or category')) + '" value="' + esc(f.q || '') + '"></label><button type="button" class="gbtn" data-go="C-07" aria-label="' + esc(t('Filters')) + '" style="width:50px;height:50px;border-radius:25px">' + I('sliders', 20, 2) + ((f.cats.length || +f.minRate) ? '<span class="dot"></span>' : '') + '</button></div>' +
@@ -131,13 +137,8 @@
       '<div class="chips">' + ['All towns'].concat(L.TOWNS.slice(0, 3)).map((tw) => C.chip(t(tw), { on: f.town === tw, set: 'z.town', val: tw, icon: tw === 'All towns' ? '' : I('pin', 14, 2) })).join('') + '</div>';
     if (!loc) h += '<button type="button" class="banner info" data-act="locSetting" style="text-align:left;width:100%">' + I('pin', 18, 2) + '<span>' + t('Location is off, so distance is hidden. <b>Turn on</b>') + '</span></button>';
     h += '</div><div class="pad stack g24 mt20">';
-    if (early.length) {
-      const hrs = Math.ceil((Math.min.apply(null, early.map((k) => k.earlyUntil)) - L.W.now) / L.H);
-      h += plus ? '<div class="stack g12"><div class="hrow between"><h2 class="h2">' + t('Early access') + '</h2><span class="badge-p">PLUS</span></div>' + early.map((k) => C.campaignCard(k)).join('') + '</div>'
-        : '<button type="button" data-go="C-21" class="hrow g12" style="width:100%;text-align:left;background:#17181B;color:#F4F4F2;border-radius:24px;padding:16px"><span class="ico" style="background:#2A2C31;color:#D9DCE1">' + I('bolt', 18, 2) + '</span><span class="grow stack g4"><b style="font-size:15px">' + (early.length > 1 ? t('{n} new campaigns in early access', { n: early.length }) : t('1 new campaign in early access')) + '</b><span style="font-size:12.5px;color:#A3A6AC">' + t('Opens to everyone in {h}h · Plus members apply now', { h: hrs }) + '</span></span>' + I('lock', 18, 2) + '</button>';
-    }
-    if (!open.length && !early.length) return h + C.empty({ icon: 'search', title: t('No campaigns match'), body: t('Try another town, or clear filters.'), cta: C.btn(t('Clear filters'), { kind: 'dark', sm: 1, act: 'clearCfz' }) }) + '</div>';
-    h += '<div class="stack g8"><h2 class="h2">' + (open.length ? t('Open now') : t('Nothing else open')) + '</h2><span class="meta">' + (open.length === 1 ? t('1 campaign · newest first') : t('{n} campaigns · newest first', { n: open.length })) + '</span></div>' + open.map((k) => C.campaignCard(k)).join('');
+    if (!open.length) return h + C.empty({ icon: 'search', title: t('No campaigns match'), body: t('Try another town, or clear filters.'), cta: C.btn(t('Clear filters'), { kind: 'dark', sm: 1, act: 'clearCfz' }) }) + '</div>';
+    h += '<div class="stack g8"><h2 class="h2">' + t('Open now') + '</h2><span class="meta">' + (open.length === 1 ? t('1 campaign · newest first') : t('{n} campaigns · newest first', { n: open.length })) + '</span></div>' + open.map((k) => C.campaignCard(k)).join('');
     return h + '</div>';
   } });
   L.A.clearCfz = (ph) => { ph.cfz = null; };
@@ -149,7 +150,7 @@
       '<div class="field"><span>' + t('Type') + '</span>' + typeSeg(f.type) + '</div>' +
       '<div class="stack g10"><b style="font-size:13px;color:var(--ink2)">' + t('Categories') + '</b><div class="chips wrap">' + L.CATEGORIES.map((c) => C.chip(t(c), { on: f.cats.includes(c), multi: 'z.cats', val: c })).join('') + '</div></div>' +
       '<label class="field"><span>' + t('Minimum rate · {amt}', { amt: +f.minRate ? L.eur(+f.minRate) : t('Any') }) + '</span><input class="range" type="range" min="0" max="300" step="25" value="' + (+f.minRate || 0) + '" data-bind="z.minRate" aria-label="' + esc(t('Minimum rate')) + '"></label>' +
-      '<div class="hrow">' + C.btn(t('Clear'), { kind: 'ghost', act: 'clearCfz' }) + (() => { const n = L.filterCampaigns(x.ph).filter((k) => L.W.crMe.plus || !L.isEarly(k)).length; return C.btn(n === 1 ? t('Show 1 campaign') : t('Show {n} campaigns', { n }), { kind: 'dark', full: 1, close: 1, style: 'flex:1' }); })() + '</div></div>';
+      '<div class="hrow">' + C.btn(t('Clear'), { kind: 'ghost', act: 'clearCfz' }) + (() => { const n = L.filterCampaigns(x.ph).length; return C.btn(n === 1 ? t('Show 1 campaign') : t('Show {n} campaigns', { n }), { kind: 'dark', full: 1, close: 1, style: 'flex:1' }); })() + '</div></div>';
   } });
 
   /* ───────── C-08 Business profile (creator view) ───────── */
@@ -159,40 +160,35 @@
   S('C-09', { name: 'Campaign detail', render: (x) => {
     const k = L.camp(x.arg); const b = L.biz(k.bizId); const paid = k.type === 'paid';
     const mine = L.W.collabs.find((c) => c.campaignId === k.id && c.creatorId === L.W.crMe.id && !['withdrawn'].includes(c.status));
-    const early = L.isEarly(k) && !L.W.crMe.plus; const full = L.slotsLeft(k) <= 0; const closed = k.status !== 'active';
+    const full = L.slotsLeft(k) <= 0; const closed = k.status !== 'active';
     x.fix('<div class="topbar">' + C.gbtn('back', { back: 1, aria: t('Back'), clear: 1 }) + '<span class="grow"></span>' + C.gbtn('more', { go: 'S-22:biz:' + b.id, aria: t('Report'), clear: 1 }) + '</div>');
     let h = '<div class="hero" style="height:380px">' + C.ph(k.cover, '', k.title) + '</div><div class="pad stack g20" style="margin-top:-40px;position:relative">' +
       '<button type="button" class="hrow g10" data-go="C-08:' + b.id + '" style="text-align:left;min-height:52px">' + C.logo(b, 40) + '<span class="stack grow"><b>' + esc(b.name) + '</b><span class="meta">' + esc(t(b.category) + ' · ' + t(k.town) + ' · ' + k.km + ' km') + '</span></span>' + I('chev', 16, 2) + '</button>' +
-      '<div class="stack g8"><span class="hrow wrap g8">' + C.pill(paid ? t('Paid') : t('Experience'), paid ? 'peach' : 'sky', paid ? 'euro' : 'gift') + (L.isEarly(k) ? C.pill(t('Early access'), 'ink', 'bolt') : '') + (mine ? C.status(mine.status, mine.id) : '') + '</span><h1 class="lt">' + esc(k.title) + '</h1></div>';
-    if (early) h += '<button type="button" data-go="C-21" class="hrow g12" style="width:100%;text-align:left;background:#17181B;color:#F4F4F2;border-radius:20px;padding:14px 16px">' + I('bolt', 20, 2) + '<span class="grow stack"><b style="font-size:14.5px">' + t('Plus early access') + '</b><span style="font-size:12.5px;color:#A3A6AC">' + t('Everyone can apply in {h}h. Plus members apply now.', { h: Math.ceil((k.earlyUntil - L.W.now) / L.H) }) + '</span></span>' + I('chev', 16, 2) + '</button>';
+      '<div class="stack g8"><span class="hrow wrap g8">' + C.pill(paid ? t('Paid') : t('Experience'), paid ? 'peach' : 'sky', paid ? 'euro' : 'gift') + (mine ? C.status(mine.status, mine.id) : '') + '</span><h1 class="lt">' + esc(k.title) + '</h1></div>';
     if (closed && !mine) h += C.banner('grey', 'lock', t('This campaign has closed.'));
-    else if (full && !mine) h += C.banner('grey', 'users', t('All slots are filled.'));
+    else if (full && !mine) h += C.banner('grey', 'users', t('This campaign already has its creator.'));
     if (mine) h += '<button type="button" class="banner info" data-go="' + (mine.status === 'invited' ? 'C-13:' : 'S-12:') + mine.id + '" style="width:100%;text-align:left">' + I('work', 18, 2) + '<span><b>' + esc(t(L.STATUS[mine.status][0])) + '.</b> ' + esc(C.nextC(mine)) + ' →</span></button>';
-    h += paid ? '<div class="card p stack g8"><div class="hrow between"><span class="meta">' + t('Rate per creator') + '</span>' + C.pill(t('Held by Stripe'), 'peach', 'shield') + '</div><span class="num" style="font-size:40px;letter-spacing:-0.04em;line-height:42px">' + L.eur(k.rate) + '</span><span class="sub">' + t("You receive {amt} after Lokaly's 10% fee. Paid when {biz} approves, or automatically 72h after you submit.", { amt: '<b style="color:var(--ink)">' + L.eur(L.netC(k.rate)) + '</b>', biz: esc(b.name) }) + '</span></div>'
+    h += paid ? '<div class="card p stack g8"><div class="hrow between"><span class="meta">' + t('Rate per creator') + '</span>' + C.pill(t('Held by Stripe'), 'peach', 'shield') + '</div><span class="num" style="font-size:40px;letter-spacing:-0.04em;line-height:42px">' + L.eur(k.rate) + '</span><span class="sub">' + t("All {amt} goes to your Lokaly wallet when {biz} approves, or automatically 72h after you submit. Lokaly takes 10% only when you withdraw.", { amt: '<b style="color:var(--ink)">' + L.eur(L.netC(k.rate)) + '</b>', biz: esc(b.name) }) + '</span></div>'
       : '<div class="card p stack g8"><span class="meta">' + t('What you get') + '</span><b class="serif" style="font-size:28px;font-weight:400;line-height:30px">' + esc(k.offer) + '</b><span class="sub">' + t('Estimated value {amt}. No money changes hands.', { amt: L.eur(k.value) }) + '</span></div>';
     h += '<div class="stack g10"><h2 class="h2">' + t('The brief') + '</h2><p style="margin:0;font-size:15px;line-height:23px">' + esc(k.brief) + '</p></div>';
     h += '<div class="card p stack g10"><h2 class="h2">' + t('Deliverables') + '</h2>' + k.deliverables.map((d) => '<div class="hrow g10">' + I(d.platform === 'TikTok' ? 'tiktok' : d.platform === 'YouTube' ? 'youtube' : 'insta', 18, 2) + '<span>' + dlv(d) + '</span></div>').join('') + '<span class="meta">' + t('Must include {what}', { what: esc(k.mustInclude) }) + (k.donts ? ' · ' + t('Avoid: {what}', { what: esc(k.donts) }) : '') + '</span></div>';
     const left = Math.max(0, L.slotsLeft(k));
-    h += C.list([C.row({ icon: 'cal', tone: 'sky', title: t('Visit window'), sub: L.date(k.visitFrom) + ' – ' + L.date(k.visitTo) + ' · ' + t('exact time agreed in chat'), chev: false }), C.row({ icon: 'clock', tone: 'lilac', title: t('Apply by {date}', { date: L.date(k.applyBy) }), sub: k.slots === 1 ? t('{n} of 1 slot left', { n: left }) : t('{n} of {total} slots left', { n: left, total: k.slots }), chev: false }), C.row({ icon: 'pin', title: esc(b.address || t(k.town)), sub: t('Open in Maps'), act: 'openMaps', right: I('ext', 16, 2), chev: false })]);
+    h += C.list([C.row({ icon: 'cal', tone: 'sky', title: t('Visit window'), sub: L.date(k.visitFrom) + ' – ' + L.date(k.visitTo) + ' · ' + t('exact time agreed in chat'), chev: false }), C.row({ icon: 'clock', tone: 'lilac', title: t('Apply by {date}', { date: L.date(k.applyBy) }), sub: left ? t('One creator · still open') : t('One creator · taken'), chev: false }), C.row({ icon: 'pin', title: esc(b.address || t(k.town)), sub: t('Open in Maps'), act: 'openMaps', right: I('ext', 16, 2), chev: false })]);
     h += '</div>';
-    if (!mine && !closed && !full) x.fix(C.abar({ title: paid ? L.eur(L.netC(k.rate)) : t('Experience'), sub: paid ? t('you receive') : esc(k.offer.split(' + ')[0]), btn: C.btn(early ? t('Apply with Plus') : t('Apply'), { act: 'applyStart', arg: k.id, icon: early ? I('lock', 16, 2) : '' }) }));
+    if (!mine && !closed && !full) x.fix(C.abar({ title: paid ? L.eur(L.netC(k.rate)) : t('Experience'), sub: paid ? t('to your wallet') : esc(k.offer.split(' + ')[0]), btn: C.btn(t('Apply'), { act: 'applyStart', arg: k.id }) }));
     return h;
   } });
   L.A.applyStart = (ph, id) => {
-    const k = L.camp(id);
-    if (L.isEarly(k) && !L.W.crMe.plus) { ph.go('C-21'); return; }
-    if (L.crMeter() < 100) { ph.go('C-11'); return; }
-    if (!L.W.crMe.plus && L.W.crMe.appsUsed >= L.W.crMe.appsCap) { ph.capHit = true; ph.go('C-21'); return; }
+    if (L.crMeter() < 100) { ph.go('C-05'); return; } // profiles are complete in v2; this only catches a profile edited back down
     ph.go('C-10:' + id);
   };
 
   /* ───────── C-10 Apply sheet ───────── */
   S('C-10', { name: 'Apply', sheet: true, render: (x) => {
-    const k = L.camp(x.arg); const b = L.biz(k.bizId); const plus = L.W.crMe.plus;
-    const left = L.W.crMe.appsCap - L.W.crMe.appsUsed;
+    const k = L.camp(x.arg); const b = L.biz(k.bizId);
     return C.sheetHead(t('Apply to {biz}', { biz: b.name })) + '<div class="stack g16">' + C.field({ label: t('Your pitch'), bind: 'pitch', value: x.f.pitch, textarea: 1, live: 1, ph: t('Why you, why this place. Two or three lines is perfect.'), max: 400, help: (x.f.pitch || '').length + '/400' }) +
       '<button type="button" class="row" role="checkbox" aria-checked="' + !!x.f.ok + '" data-toggle="ok" style="border:0;align-items:flex-start"><span class="check' + (x.f.ok ? ' on' : '') + '">' + (x.f.ok ? I('check', 15, 3) : '') + '</span><span class="rt"><b style="font-size:14.5px">' + t('I can deliver {list}', { list: k.deliverables.map(dlvShort).join(' + ') }) + '</b><span>' + t('and visit between {from} and {to}', { from: L.dshort(k.visitFrom), to: L.dshort(k.visitTo) }) + '</span></span></button>' +
-      '<div class="hrow between"><span class="meta">' + (plus ? t('Unlimited applications with Plus') : t('{left} of {cap} applications left this month', { left, cap: L.W.crMe.appsCap })) + '</span>' + (plus ? '<span class="badge-p">PLUS</span>' : '<button type="button" class="link" data-go="C-21" style="font-size:13px">' + t('Get more') + '</button>') + '</div>' +
+      '<span class="meta">' + t('Apply to as many campaigns as you like.') + '</span>' +
       C.btn(x.ph.busy === 'apply' ? '' : t('Send application'), { kind: 'dark', full: 1, act: 'apply', arg: k.id, dis: !x.f.ok || (x.f.pitch || '').trim().length < 10, busy: x.ph.busy === 'apply', busyLabel: t('Sending…') }) + '</div>';
   } });
   L.A.apply = (ph, id) => {
@@ -202,16 +198,13 @@
       ph.busy = null;
       if (L.W.scen.offline) { ph.toast(t("You're offline. Try again when connected")); return; }
       const col = { id: L.id('col'), campaignId: k.id, creatorId: me.id, status: 'applied', pitch, visitDate: null, submission: null, submittedAt: null, history: [{ s: 'applied', at: L.W.now }] };
-      L.W.collabs.push(col); L.W.crMe.appsUsed++;
+      L.W.collabs.push(col);
       L.post(b.id, me.id, { from: 'sys', deal: 'application', collabId: col.id }, k.id);
       L.post(b.id, me.id, { from: 'cr', text: pitch }, k.id);
       L.notify('business', { icon: 'user', tone: 'sky', msg: '{name} applied to {title}', p: { name: { cr: me.id }, title: { camp: k.id } }, go: 'B-25:' + col.id });
       ph.sheets = []; ph.go('C-12:' + col.id, { replace: 1 });
     });
   };
-
-  /* ───────── C-11 Gate ───────── */
-  S('C-11', { name: 'Profile incomplete gate', sheet: true, render: () => C.sheetHead(t('Finish your profile to apply'), t("Businesses only see complete profiles. You're at {pct}.", { pct: L.pct(L.crMeter()) })) + C.meter(L.crMeter()) + '<div class="mt16">' + crChecklist() + '</div>' });
 
   /* ───────── C-12 Applied ───────── */
   S('C-12', { name: 'Applied', render: (x) => {
@@ -220,7 +213,7 @@
     x.fix(C.top({ close: 1 }));
     x.fix(C.abar({ btn: C.btn(t('Keep browsing'), { kind: 'sec', tab: 'C-06', style: 'flex:1' }) + C.btn(t('Go to Work'), { tab: 'C-14', style: 'flex:1' }) }));
     return C.success({ icon: 'send', title: t('Sent to {biz}.', { biz: esc(b.name) }), sub: t('{title}. They usually reply within two days.', { title: esc(k.title) }),
-      body: '<div class="card p stack g16">' + step(1, k.type === 'paid' ? t('{biz} accepts and funds {amt}', { biz: b.name, amt: L.eur(L.payB(k.rate)) }) : t('{biz} accepts you', { biz: b.name }), k.type === 'paid' ? t('The money is held by Stripe before you do anything.') : t('No money is held for Experience collabs.')) + step(2, t('You visit and post'), t('Agree a time in chat. Then submit your post link and a screenshot.')) + step(3, k.type === 'paid' ? t('You get {amt}', { amt: L.eur(L.netC(k.rate)) }) : t('Done'), t('When they approve, or automatically 72h after you submit.')) + '</div>' });
+      body: '<div class="card p stack g16">' + step(1, k.type === 'paid' ? t('{biz} accepts and funds {amt}', { biz: b.name, amt: L.eur(L.payB(k.rate)) }) : t('{biz} accepts you', { biz: b.name }), k.type === 'paid' ? t('The money is held by Stripe before you do anything.') : t('No money is held for Experience collabs.')) + step(2, t('You visit and post'), t('Agree a time in chat. Then submit your post link and a screenshot.')) + step(3, k.type === 'paid' ? t('{amt} lands in your wallet', { amt: L.eur(L.netC(k.rate)) }) : t('Done'), t('When they approve, or automatically 72h after you submit.')) + '</div>' });
   } });
 
   /* ───────── C-13 Invite detail ───────── */
@@ -297,23 +290,25 @@
     x.fix(C.abar({ btn: C.btn(t('Back to collab'), { kind: 'dark', full: 1, act: 'toCollab', arg: col.id }) }));
     return C.success({ tone: 'lilac', title: t('Submitted.'), sub: t('Nice work. {biz} has been told.', p), body:
       '<div class="tile lilac wide" style="cursor:default;min-height:170px"><span class="tl">' + t('Auto-release') + '</span><span class="tv">' + t('{h}<small>h</small>', { h: '<span data-in="count" data-d="100" data-v="' + L.hoursLeft(col) + '">' + L.hoursLeft(col) + '</span>' }) + '</span><span class="ts">' + (paid ? t('{amt} releases automatically on {when} unless {biz} reports a problem', p) : t('Completes automatically on {when} unless {biz} reports a problem', p)) + '</span></div>' +
-      '<div class="card p stack g10"><b>' + t('What happens next') + '</b><span class="sub">' + t('• {biz} checks your post against the brief.', p) + '</span><span class="sub">' + (paid ? t('• Approved: payout lands in 2–5 business days.') : t('• Approved: the collab card appears on both profiles.')) + '</span><span class="sub">' + t('• A problem: Lokaly reviews it and contacts you.') + '</span></div>' +
-      (paid && L.W.crMe.payout !== 'verified' ? '<button type="button" class="banner warn2" data-go="C-17" style="width:100%;text-align:left">' + I('alert', 18, 2) + '<span>' + t("<b>Set up payouts now</b> so the money isn't held up.") + '</span></button>' : '') });
+      '<div class="card p stack g10"><b>' + t('What happens next') + '</b><span class="sub">' + t('• {biz} checks your post against the brief.', p) + '</span><span class="sub">' + (paid ? t('• Approved: {amt} goes to your Lokaly wallet.', p) : t('• Approved: the collab card appears on both profiles.')) + '</span><span class="sub">' + t('• A problem: Lokaly reviews it and contacts you.') + '</span></div>' });
   } });
   L.A.toCollab = (ph, id) => ph.go('S-12:' + id, { replace: 1 });
 
-  /* ───────── C-17 Payout account (Stripe Connect) ───────── */
+  /* ───────── C-17 Payout account (bank details) ─────────
+     v2: added at the first withdrawal (Stripe-hosted, so Lokaly never sees the ID), saved, and confirmed on every withdrawal. */
   S('C-17', { name: 'Payout account', render: (x) => {
     const st = L.W.crMe.payout;
     x.fix(C.top({ title: t('Payout account'), solid: 1 }));
-    const head = { none: ['Get paid with Stripe', 'Lokaly pays you through Stripe Connect. Verify once, then every payout goes straight to your bank.', 'grey'], review: ['Stripe is checking your details', 'Usually a few minutes, at most two business days. You can keep working meanwhile.', 'lilac'], action: ['Stripe needs one more thing', 'Upload a photo of your DNI or NIE to finish verification. Payouts are paused until then.', 'red'], verified: ['Payouts are on', 'Money from approved collabs lands in your bank in 2–5 business days.', 'ok'] }[st];
+    const head = { none: ['Add your bank account', 'Withdrawals from your wallet go to your bank. Add it once, at your first withdrawal; we save it and you confirm it every time.', 'grey'], review: ['Stripe is checking your details', 'Usually a few minutes, at most two business days. Your wallet keeps growing meanwhile.', 'lilac'], action: ['Stripe needs one more thing', 'Upload a photo of your DNI or NIE to finish verification. Withdrawals are paused until then.', 'red'], verified: ['Bank account saved', 'Withdrawals land in your bank in 1–3 business days.', 'ok'] }[st];
+    const fromWithdraw = x.ph.stack.some((e) => e.id === 'C-27');
     let h = '';
-    if (st === 'verified') h += C.list([C.row({ icon: 'card', title: 'ES91 •••• •••• 4821', sub: t('CaixaBank · default'), chev: false }), C.row({ icon: 'user', title: t('Identity verified'), sub: t('NIF and address held by Stripe, not Lokaly'), chev: false }), C.row({ icon: 'ext', title: t('Update details in Stripe'), go: 'KYC' })]);
+    if (st === 'verified') h += C.list([C.row({ icon: 'card', title: L.bankLabel, sub: t('CaixaBank · confirmed on every withdrawal'), chev: false }), C.row({ icon: 'user', title: t('Identity verified'), sub: t('NIF and address held by Stripe, not Lokaly'), chev: false }), C.row({ icon: 'ext', title: t('Update details in Stripe'), go: 'KYC' })]);
     else if (st === 'none') h += '<div class="card p stack g10"><b>' + t("You'll need") + '</b><span class="sub">' + t('• Your DNI, NIE or passport') + '</span><span class="sub">' + t('• Your NIF and home address') + '</span><span class="sub">' + t('• A Spanish or EU bank account (IBAN)') + '</span></div>' + C.banner('grey', 'lock', t('Stripe collects this for tax rules (DAC7). Lokaly never sees your ID.'));
     h = C.success({ tone: head[2], icon: st === 'verified' ? 'check' : st === 'action' ? 'alert' : st === 'review' ? 'clock' : 'euro', title: t(head[0]), sub: t(head[1]), xl: false, body: h });
     if (st === 'none') x.fix(C.abar({ btn: C.btn(t('Continue to Stripe'), { kind: 'dark', full: 1, go: 'KYC', icon: I('ext', 16, 2) }) }));
     if (st === 'action') x.fix(C.abar({ btn: C.btn(t('Fix in Stripe'), { kind: 'dark', full: 1, go: 'KYC' }) }));
     if (st === 'review') x.fix(C.abar({ btn: C.btn(t('Refresh status'), { kind: 'sec', full: 1, act: 'kycRefresh' }) }));
+    if (st === 'verified' && fromWithdraw) x.fix(C.abar({ btn: C.btn(t('Back to withdraw'), { kind: 'dark', full: 1, back: 1 }) }));
     return h;
   } });
   S('KYC', { name: 'Stripe Connect onboarding', sheet: true, full: true, render: (x) => {
@@ -325,89 +320,97 @@
   L.A.kycSubmit = (ph) => { ph.sheets = []; L.W.crMe.payout = 'review'; ph.toast(t('Back in Lokaly · Stripe is checking')); ph.later(1200, () => { L.W.crMe.payout = L.W.scen.kyc === 'action' && !ph.kycTried ? 'action' : 'verified'; ph.kycTried = true; if (L.W.crMe.payout === 'action') L.email('E-07', L.myCr().first, 'Stripe needs one more document', {}, {}); }); };
   L.A.kycRefresh = (ph) => { L.W.crMe.payout = L.W.scen.kyc === 'action' && !ph.kycTried ? 'action' : 'verified'; };
 
-  /* ───────── C-18 Earnings ───────── */
+  /* ───────── C-18 Earnings + wallet ───────── */
   S('C-18', { name: 'Earnings', render: (x) => {
     const mine = L.myCollabsC().filter((c) => L.camp(c.campaignId).type === 'paid');
     const held = mine.filter((c) => c.status === 'active' || c.status === 'disputed').reduce((s, c) => s + L.netC(L.camp(c.campaignId).rate), 0);
     const rel = mine.filter((c) => c.status === 'submitted').reduce((s, c) => s + L.netC(L.camp(c.campaignId).rate), 0);
-    const pos = L.W.payouts.filter((p) => p.creatorId === L.W.crMe.id);
-    const paid = pos.filter((p) => p.status === 'paid').reduce((s, p) => s + p.net, 0);
+    const bal = L.walletBalance(); const ws = L.myWithdrawals();
+    const out = ws.filter((w) => w.status === 'paid').reduce((s, w) => s + L.wNet(w.amount), 0);
     x.fix(C.top({ title: t('Earnings'), solid: 1, right: C.gbtn('download', { act: 'exportCsv', arg: 'creator', aria: t('Export CSV') }) }));
     let h = '<div class="pad stack g16" style="padding-top:116px">';
-    if (L.W.crMe.payout !== 'verified') h += '<button type="button" class="banner warn2" data-go="C-17" style="width:100%;text-align:left">' + I('alert', 18, 2) + '<span><b>' + (L.W.crMe.payout === 'action' ? t('Stripe needs one more thing') : t('Add a payout account')) + '</b><br>' + t('Earnings stay held until your payout account is verified.') + '</span></button>';
-    h += '<div class="tiles">' + C.tile({ tone: 'peach', label: t('Held'), value: t('<sup>€</sup>{n}', { n: '<span' + L.tk('c:held18', Math.round(held), 'num') + '>' + Math.round(held) + '</span>' }), sub: t('in active collabs'), foot: t('safe with Stripe') }) + C.tile({ tone: 'lilac', label: t('Releasing'), value: t('<sup>€</sup>{n}', { n: Math.round(rel) }), sub: t('in a 72h window'), foot: t('{n} submitted', { n: mine.filter((c) => c.status === 'submitted').length }) }) + C.tile({ tone: 'mint', label: t('Paid out'), value: t('<sup>€</sup>{n}', { n: '<span' + L.tk('c:paid', Math.round(paid), 'num') + '>' + Math.round(paid) + '</span>' }), sub: t('all time, after fees'), foot: L.pl(pos.length, 'payout'), wide: true }) + '</div>';
-    h += C.list([C.row({ icon: 'euro', title: t('Payout account'), right: payoutLabel(L.W.crMe.payout), go: 'C-17' })]);
-    if (!pos.length && !mine.some((c) => ['active', 'submitted'].includes(c.status))) return h + C.empty({ icon: 'euro', title: t('No earnings yet'), body: t('Your first collab earnings will show here.'), cta: C.btn(t('Find paid campaigns'), { kind: 'dark', sm: 1, act: 'findPaid' }) }) + '</div>';
-    h += '<h2 class="h2 mt8">' + t('By collab') + '</h2>' + C.list(mine.filter((c) => ['active', 'submitted', 'completed', 'disputed'].includes(c.status)).map((c) => {
-      const k = L.camp(c.campaignId); const p = pos.find((y) => y.collabId === c.id);
-      return C.row({ av: C.logo(L.biz(k.bizId), 44), title: esc(L.biz(k.bizId).name), sub: esc(k.title) + ' · ' + (p ? (p.status === 'paid' ? t('Paid {date}', { date: L.dshort(p.at) }) : p.status === 'failed' ? t('Payout failed') : t('Arrives {date}', { date: L.dshort(p.at) })) : C.nextC(c)), right: '<span class="stack" style="align-items:flex-end;gap:4px"><span class="num" style="color:var(--ink);font-weight:600">' + L.eur(L.netC(k.rate)) + '</span>' + (c.status === 'disputed' ? C.status('disputed') : c.status === 'submitted' ? C.pill(t('Releasing in {h}h', { h: L.hoursLeft(c) }), 'lilac') : c.status === 'active' ? C.pill(t('Held'), 'peach') : C.pill(t(p && p.status === 'pending' ? 'On its way' : 'Paid@@payout'), p && p.status === 'pending' ? 'lilac' : 'mint')) + '</span>', go: p ? 'C-19:' + p.id : 'S-12:' + c.id });
+    h += '<div class="card p stack g12" style="background:#17181B;color:#F4F4F2"><span class="caps" style="color:#D9DCE1;font-size:10px">' + t('Wallet') + '</span><span class="num" style="font-size:48px;line-height:50px;letter-spacing:-0.045em"' + L.tk('c:bal', bal, 'num', 'eur') + '>' + L.eur(bal, 2) + '</span><span style="font-size:13px;color:#A3A6AC">' + t('Available to withdraw. Lokaly takes 10% when you withdraw, nothing before.') + '</span>' +
+      C.btn(t('Withdraw'), { kind: 'white', full: 1, go: 'C-27', dis: bal < L.MIN_WITHDRAW }) + '</div>';
+    h += '<div class="tiles">' + C.tile({ tone: 'peach', label: t('Held'), value: t('<sup>€</sup>{n}', { n: '<span' + L.tk('c:held18', Math.round(held), 'num') + '>' + Math.round(held) + '</span>' }), sub: t('in active collabs'), foot: t('safe with Stripe') }) + C.tile({ tone: 'lilac', label: t('Releasing'), value: t('<sup>€</sup>{n}', { n: Math.round(rel) }), sub: t('in a 72h window'), foot: t('{n} submitted', { n: mine.filter((c) => c.status === 'submitted').length }) }) + C.tile({ tone: 'mint', label: t('Withdrawn@@wallet'), value: t('<sup>€</sup>{n}', { n: '<span' + L.tk('c:out', Math.round(out), 'num') + '>' + Math.round(out) + '</span>' }), sub: t('all time, after fees'), foot: L.pl(ws.length, 'withdrawal'), wide: true }) + '</div>';
+    h += C.list([C.row({ icon: 'card', title: t('Payout account'), right: L.W.crMe.payout === 'verified' ? L.bankLabel : payoutLabel(L.W.crMe.payout), go: 'C-17' })]);
+    const going = mine.filter((c) => ['active', 'submitted', 'disputed'].includes(c.status));
+    const acts = L.walletCredits(L.W.crMe.id).map((c) => ({ at: c.at, credit: c })).concat(ws.map((w) => ({ at: w.at, w }))).sort((a, z) => z.at - a.at);
+    if (!going.length && !acts.length) return h + C.empty({ icon: 'euro', title: t('No earnings yet'), body: t('Your first collab earnings will show here.'), cta: C.btn(t('Find paid campaigns'), { kind: 'dark', sm: 1, act: 'findPaid' }) }) + '</div>';
+    if (going.length) h += '<h2 class="h2 mt8">' + t('On the way to your wallet') + '</h2>' + C.list(going.map((c) => { const k = L.camp(c.campaignId);
+      return C.row({ av: C.logo(L.biz(k.bizId), 44), title: esc(L.biz(k.bizId).name), sub: esc(k.title) + ' · ' + C.nextC(c), right: '<span class="stack" style="align-items:flex-end;gap:4px"><span class="num" style="color:var(--ink);font-weight:600">' + L.eur(L.netC(k.rate)) + '</span>' + (c.status === 'disputed' ? C.status('disputed') : c.status === 'submitted' ? C.pill(t('Releasing in {h}h', { h: L.hoursLeft(c) }), 'lilac') : C.pill(t('Held'), 'peach')) + '</span>', go: 'S-12:' + c.id }); }));
+    if (acts.length) h += '<h2 class="h2 mt8">' + t('Wallet activity') + '</h2>' + C.list(acts.map((a) => {
+      if (a.credit) { const k = L.camp(a.credit.col.campaignId); return C.row({ av: C.logo(L.biz(k.bizId), 44), title: esc(L.biz(k.bizId).name), sub: esc(k.title) + ' · ' + L.dshort(a.at), right: '<span class="stack" style="align-items:flex-end;gap:4px"><span class="num" style="color:var(--ink);font-weight:600">+' + L.eur(a.credit.amount) + '</span>' + C.pill(t('In wallet'), 'mint') + '</span>', go: 'S-12:' + a.credit.col.id }); }
+      const st = wStatus(a.w);
+      return C.row({ icon: 'download', tone: 'grey', title: t('Withdrawal'), sub: L.bankLabel + ' · ' + L.dshort(a.at), right: '<span class="stack" style="align-items:flex-end;gap:4px"><span class="num" style="color:var(--ink);font-weight:600">−' + L.eur(a.w.amount) + '</span>' + C.pill(st[0], st[1]) + '</span>', go: 'C-19:' + a.w.id });
     }));
     return h + C.btn(t('Export CSV'), { kind: 'sec', full: 1, icon: I('download', 18, 2), act: 'exportCsv', arg: 'creator' }) + '</div>';
   } });
   L.A.findPaid = (ph) => { L.cfz(ph).type = 'paid'; ph.tab('C-06'); };
 
-  /* ───────── C-19 Payout detail ───────── */
-  S('C-19', { name: 'Payout detail', render: (x) => {
-    const p = L.W.payouts.find((y) => y.id === x.arg); const col = L.col(p.collabId); const k = L.camp(col.campaignId); const b = L.biz(k.bizId);
-    x.fix(C.top({ title: t('Payout'), solid: 1 }));
-    const st = { paid: [t('Paid@@payout'), 'ok', t('Landed {date}', { date: L.date(p.at) })], pending: [t('On its way'), 'lilac', t('Expected {date}', { date: L.date(p.at) })], failed: [t('Failed'), 'red', t('Your bank rejected it')] }[p.status];
-    return '<div class="pad stack g20" style="padding-top:116px"><div class="stack g6" style="align-items:center;text-align:center">' + C.logo(b, 56) + '<span class="num" style="font-size:48px;letter-spacing:-0.04em">' + L.eur(p.net, 2) + '</span>' + C.pill(st[0], st[1]) + '<span class="meta">' + st[2] + '</span></div>' +
-      (p.status === 'failed' ? C.banner('bad', 'alert', t("<b>Fix your bank details in Stripe</b> and we'll retry automatically.")) : '') +
-      '<div class="card p">' + C.money([[t('Rate'), L.eur(p.gross, 2)], [t('Lokaly fee 10%'), '−' + L.eur(p.gross - p.net, 2)], [t('You receive'), L.eur(p.net, 2), 1]]) + '</div>' +
-      C.list([C.row({ icon: 'work', title: esc(b.name + ' · ' + k.title), sub: col.releaseReason === 'auto_released' ? t('Auto-released after 72h') : t('Approved by {biz}', { biz: esc(b.name) }), go: 'S-12:' + col.id }), C.row({ icon: 'card', title: t('Stripe reference'), right: '<span class="num">' + p.ref + '</span>', chev: false })]) + (p.status === 'failed' ? C.btn(t('Fix in Stripe'), { kind: 'dark', full: 1, go: 'C-17' }) : '') + '</div>';
+  /* ───────── C-27 Withdraw ─────────
+     The saved bank account is confirmed on every withdrawal; the 10% fee (IVA 21% included) comes off the amount. */
+  const wLines = (amt) => [[t('Withdraw from wallet'), L.eur(amt, 2)], [t('Lokaly fee 10%'), '−' + L.eur(L.wFee(amt), 2)], [t('Of which IVA 21%'), L.eur(L.iva(L.wFee(amt)), 2)], [t('You receive'), L.eur(L.wNet(amt), 2), 1]];
+  S('C-27', { name: 'Withdraw', render: (x) => {
+    const bal = L.walletBalance(); const f = x.f; const st = L.W.crMe.payout;
+    if (f.amt === undefined) f.amt = String(bal);
+    const amt = Math.round((+String(f.amt).replace(',', '.') || 0) * 100) / 100;
+    const bad = amt < L.MIN_WITHDRAW ? t('The minimum is {amt}', { amt: L.eur(L.MIN_WITHDRAW) }) : amt > bal ? t('You have {amt} available', { amt: L.eur(bal, 2) }) : null;
+    x.fix(C.top({ title: t('Withdraw'), solid: 1 }));
+    let bank;
+    if (st === 'verified') bank = '<div class="list"><button type="button" class="row" role="checkbox" aria-checked="' + !!f.ok + '" data-toggle="ok"><span class="check' + (f.ok ? ' on' : '') + '">' + (f.ok ? I('check', 15, 3) : '') + '</span><span class="rt"><b>' + t('Send to {bank}', { bank: L.bankLabel }) + '</b><span>' + t('CaixaBank · saved account') + '</span></span></button>' + C.row({ icon: 'edit', tone: 'grey', title: t('Use a different account'), go: 'C-17' }) + '</div>';
+    else if (st === 'review') bank = C.banner('info', 'clock', t('<b>Stripe is checking your bank details.</b><br>You can withdraw as soon as they\'re verified.')) + C.btn(t('Refresh status'), { kind: 'sec', sm: 1, act: 'kycRefresh' });
+    else bank = '<div class="card p stack g10"><b>' + t(st === 'action' ? 'Stripe needs one more thing' : 'Add your bank account') + '</b><span class="sub">' + t(st === 'action' ? 'Finish verification in Stripe, then come back to withdraw.' : 'Your first withdrawal: add your bank details once. We save them for next time.') + '</span>' + C.btn(t(st === 'action' ? 'Fix in Stripe' : 'Add bank account'), { kind: 'dark', sm: 1, go: 'C-17' }) + '</div>';
+    x.fix(C.abar({ title: L.eur(L.wNet(bad ? 0 : amt), 2), sub: t('you receive'), btn: C.btn(x.ph.busy === 'cashout' ? '' : t('Withdraw'), { kind: 'pri', act: 'cashOut', dis: !!bad || st !== 'verified' || !f.ok, busy: x.ph.busy === 'cashout', busyLabel: t('Processing…') }) }));
+    return '<div class="pad stack g20" style="padding-top:116px">' + C.field({ label: t('Amount'), bind: 'amt', value: f.amt, pre: '€', type: 'number', mode: 'decimal', live: 1, err: bad, help: t('{amt} available', { amt: L.eur(bal, 2) }) }) +
+      (amt !== bal ? '<button type="button" class="link" data-set="amt" data-val="' + bal + '" style="font-size:13px;align-self:flex-start;margin-top:-10px">' + t('Withdraw everything') + '</button>' : '') +
+      '<div class="stack g10"><h2 class="h2">' + t('To your bank') + '</h2>' + bank + '</div>' +
+      '<div class="card p stack g8"><b>' + t('Breakdown') + '</b>' + C.money(wLines(bad ? 0 : amt)) + '<span class="meta">' + t('Arrives in 1–3 business days.') + '</span>' + C.oq(t('IVA on the fee and any withholding: accountant to confirm.')) + '</div></div>';
+  } });
+  L.A.cashOut = (ph) => {
+    const f = ph.top().f; const amt = Math.round((+String(f.amt).replace(',', '.') || 0) * 100) / 100; const me = L.myCr();
+    ph.busy = 'cashout';
+    ph.later(700, () => {
+      ph.busy = null;
+      const w = { id: L.id('w'), creatorId: me.id, amount: amt, status: 'pending', at: L.W.now, arrive: L.W.now + 2 * L.D, ref: 'po_' + L.W.seq + 'Lk' };
+      L.W.withdrawals.unshift(w);
+      L.email('E-06', me.first, 'Withdrawal on its way · {amt}', { w: w.id }, { amt: { eur: L.wNet(amt), d: 2 } });
+      L.notify('creator', { icon: 'euro', tone: 'peach', cat: 'payments', msg: 'Withdrawal sent · {amt} to your bank', p: { amt: { eur: L.wNet(amt), d: 2 } }, go: 'C-19:' + w.id });
+      ph.go('C-28:' + w.id, { replace: 1 });
+    });
+  };
+
+  /* ───────── C-28 Withdrawal sent ───────── */
+  S('C-28', { name: 'Withdrawal sent', render: (x) => {
+    const w = L.W.withdrawals.find((y) => y.id === x.arg);
+    x.fix(C.top({ close: 1 }));
+    x.fix(C.abar({ btn: C.btn(t('View withdrawal'), { kind: 'sec', go: 'C-19:' + w.id, style: 'flex:1' }) + C.btn(t('Done'), { back: 1, style: 'flex:1' }) }));
+    return C.success({ icon: 'send', title: t('On its way.'), sub: t('{amt} to {bank}. Arrives by {date}.', { amt: L.eur(L.wNet(w.amount), 2), bank: L.bankLabel, date: L.date(w.arrive) }), body: '<div class="card p">' + C.money(wLines(w.amount)) + '</div>' });
+  } });
+
+  /* ───────── C-19 Withdrawal detail ───────── */
+  S('C-19', { name: 'Withdrawal detail', render: (x) => {
+    const w = L.W.withdrawals.find((y) => y.id === x.arg); const st = wStatus(w);
+    x.fix(C.top({ title: t('Withdrawal'), solid: 1 }));
+    const when = { paid: t('Landed {date}', { date: L.date(w.arrive) }), pending: t('Expected {date}', { date: L.date(w.arrive) }), failed: t('Your bank rejected it') }[w.status];
+    return '<div class="pad stack g20" style="padding-top:116px"><div class="stack g6" style="align-items:center;text-align:center"><span class="ico ' + (w.status === 'failed' ? 'red' : 'peach') + '" style="width:56px;height:56px;border-radius:28px">' + I('download', 24, 2) + '</span><span class="num" style="font-size:48px;letter-spacing:-0.04em">' + L.eur(L.wNet(w.amount), 2) + '</span>' + C.pill(st[0], st[1]) + '<span class="meta">' + when + '</span></div>' +
+      (w.status === 'failed' ? C.banner('bad', 'alert', t("<b>Fix your bank details in Stripe.</b> The amount is back in your wallet.")) : '') +
+      '<div class="card p">' + C.money(wLines(w.amount)) + '</div>' +
+      C.list([C.row({ icon: 'card', title: L.bankLabel, sub: t('CaixaBank'), chev: false }), C.row({ icon: 'doc', title: t('Stripe reference'), right: '<span class="num">' + w.ref + '</span>', chev: false })]) +
+      '<p class="meta" style="margin:0">' + C.oq(t('Keep this screen, or drop it because withdrawals go straight to the bank? Omar to decide.')) + '</p>' +
+      (w.status === 'failed' ? C.btn(t('Fix in Stripe'), { kind: 'dark', full: 1, go: 'C-17' }) : '') + '</div>';
   } });
 
   /* ───────── C-20 Profile tab ───────── */
   S('C-20', { name: 'Creator profile tab', tab: 'C-20', render: (x) => {
-    const me = x.me; const pct = L.crMeter(); const plus = L.W.crMe.plus;
+    const me = x.me; const pct = L.crMeter();
     return '<div class="pad top-pad stack g20"><div class="hrow between"><h1 class="lt">' + t('Profile') + '</h1>' + C.gbtn('gear', { go: 'S-15', aria: t('Settings') }) + '</div>' +
       '<button type="button" class="card stack" data-go="C-20P" style="width:100%;text-align:left;overflow:hidden;padding:0"><div class="ph" style="height:250px;background-position:center 20%;background-image:url(' + (me.photo || L.img('coast')) + ')"></div><span class="stack g6" style="padding:14px 16px 16px"><span class="meta">' + t('As businesses see you') + '</span><span class="hrow" style="gap:8px"><b style="font-size:22px">' + esc(me.first || t('You')) + '</b>' + C.badges(me) + '</span><span class="meta">' + esc(me.niches.map((n) => t(n)).join(' · ') + ' · ' + t(me.town)) + ' · ' + t('surname and handles hidden') + '</span></span></button>' +
       (pct < 100 ? C.meterCard('creator') : '') +
-      (plus ? '' : '<button type="button" data-go="C-21" class="hrow g12" style="width:100%;text-align:left;background:#17181B;color:#F4F4F2;border-radius:24px;padding:16px"><span class="badge-p">PLUS</span><span class="grow stack"><b style="font-size:15px">' + t('Get seen first') + '</b><span style="font-size:12.5px;color:#A3A6AC">' + t('Early access, boosted ranking, more applications') + '</span></span>' + I('chev', 16, 2) + '</button>') +
       C.list([C.row({ icon: 'edit', title: t('Edit profile'), go: 'C-24' }), C.row({ icon: 'image', title: t('Portfolio'), right: me.portfolio.length === 1 ? t('1 photo') : t('{n} photos', { n: me.portfolio.length }), go: 'C-25' }), C.row({ icon: 'link', title: t('Connected accounts'), right: L.verified(me) ? t('Verified') : t('Not verified'), go: 'C-26' })]) +
-      C.list([C.row({ icon: 'euro', tone: 'peach', title: t('Earnings'), go: 'C-18' }), C.row({ icon: 'card', title: t('Payout account'), right: payoutLabel(L.W.crMe.payout), go: 'C-17' }), C.row({ icon: 'spark', title: 'Creator Plus', right: plus ? t('Active@@plus') : t('Free'), go: plus ? 'C-23' : 'C-21' })]) +
+      C.list([C.row({ icon: 'euro', tone: 'peach', title: t('Earnings & wallet'), right: L.eur(L.walletBalance(), 2), go: 'C-18' }), C.row({ icon: 'card', title: t('Payout account'), right: payoutLabel(L.W.crMe.payout), go: 'C-17' })]) +
       C.list([C.row({ icon: 'gear', title: t('Settings'), go: 'S-15' }), C.row({ icon: 'help', title: t('Help'), go: 'S-18' })]) + '</div>';
   } });
   S('C-20P', { name: 'Profile preview (as businesses see it)', render: (x) => { x.fix(C.top({ title: t('Preview'), clear: 1 })); return L.creatorProfile(x, x.me, 'own'); } });
-
-  /* ───────── C-21 Creator Plus paywall (Noir) ───────── */
-  S('C-21', { name: 'Creator Plus paywall', noir: true, render: (x) => {
-    const cap = x.ph.capHit;
-    x.fix('<div class="topbar">' + C.gbtn('close', { act: 'plusClose', aria: t('Close') }) + '<span class="grow"></span><span class="caps" style="color:var(--n-mark);letter-spacing:.28em;font-size:11px">Creator Plus</span></div>');
-    x.fix(C.abar({ btn: C.btn(t('Get Plus · €X.XX/mo'), { kind: 'white', full: 1, go: 'IAP:plus:plus' }) }));
-    const perk = (icon, title, s) => '<div class="perk"><span class="pk">' + I(icon, 18, 1.8) + '</span><span><b>' + title + '</b><span>' + s + '</span></span></div>';
-    return '<div class="pad stack g24" style="padding-top:120px">' + (cap ? '<div class="banner" style="background:var(--n-raised);color:var(--n-text)">' + I('alert', 18, 2) + '<span>' + t("You've used all {cap} free applications this month.", { cap: L.W.crMe.appsCap }) + '</span></div>' : '') +
-      '<h1 class="lt xl" style="font-size:46px;line-height:46px">' + t('First in line, <i style="color:var(--n-mark)">every time.</i>') + '</h1><p class="sub" style="margin:0;font-size:15px;line-height:22px">' + t('The best campaigns fill fast. Plus gets you there before everyone else.') + '</p>' +
-      '<div class="stack g18" style="gap:18px">' + perk('bolt', t('Early access'), t('Apply to new campaigns 24 hours before everyone else.')) + perk('trend', t('Boosted ranking + Plus badge'), t('Businesses see you near the top of Discover.')) + perk('send', t('More applications'), t('Unlimited, instead of {cap} a month.', { cap: L.W.crMe.appsCap }) + ' ' + C.oq(t('Matt to set the cap.'))) + '</div>' +
-      '<div class="plan on" style="cursor:default"><span class="grow stack"><span class="pn">' + t('MONTHLY') + '</span><span class="pd">' + t('Cancel any time in Settings') + '</span></span><span class="pp">€X.XX</span></div>' +
-      '<p class="legal">' + t('Billed monthly to your Apple ID. Renews automatically unless cancelled at least 24 hours before the period ends.') + ' ' + C.oq(t('Price: Matt to set.')) + ' <button type="button" class="link" data-go="S-19:view" style="min-height:0;font-size:11px">' + t('Terms') + '</button></p>' +
-      '<div class="center">' + C.btn(t('Restore purchases'), { kind: 'ghost', act: 'restore', arg: 'plus', style: 'color:var(--n-text)' }) + '</div></div>';
-  } });
-  L.A.plusClose = (ph) => { ph.capHit = false; ph.back(); };
-
-  /* ───────── C-22 Plus success (Noir) ───────── */
-  S('C-22', { name: 'Plus welcome', noir: true, render: (x) => {
-    x.fix(C.top({ close: 1 }));
-    x.fix(C.abar({ btn: C.btn(t('See early access'), { kind: 'white', full: 1, act: 'plusDone' }) }));
-    return '<div class="pad stack g20" style="padding-top:170px;text-align:center;align-items:center"><span class="caps" style="color:var(--n-mark);letter-spacing:.32em">' + t('Welcome to') + '</span><span data-in="pop" style="height:64px;padding:0 26px;border-radius:999px;border:1px solid var(--n-mark);display:inline-flex;align-items:center;font-size:30px;font-weight:700;letter-spacing:.22em;color:var(--n-mark)">PLUS</span><h1 class="lt" style="color:var(--n-text)">' + t("{name}, you're first in line.", { name: esc(x.me.first) }) + '</h1><p class="sub" style="max-width:290px;margin:0">' + t('Your badge is live and your profile ranks higher from today. Receipt from Apple.') + '</p></div>';
-  } });
-  L.A.plusDone = (ph) => { ph.capHit = false; ph.tab('C-06'); };
-
-  /* ───────── C-23 Plus manage ───────── */
-  S('C-23', { name: 'Creator Plus', render: (x) => {
-    const p = L.W.crMe.plus;
-    x.fix(C.top({ title: 'Creator Plus', solid: 1 }));
-    // Free: the Graphite paywall hero on this light page, then the plan you're on.
-    const perk = (icon, title, s) => '<div class="perk"><span class="pk">' + I(icon, 18, 1.8) + '</span><span><b>' + title + '</b><span>' + s + '</span></span></div>';
-    if (!p) return '<div class="pad stack g16" style="padding-top:116px">' + (L.W.crMe.pending ? C.banner('warn2', 'clock', t('<b>Waiting for approval.</b><br>Plus starts once Ask to Buy is approved.')) : '') +
-      '<div class="gra"><span class="caps">Creator Plus</span><h1 class="lt">' + t('First in line, <i style="color:var(--n-mark)">every time.</i>') + '</h1><p class="sub">' + t('The best campaigns fill fast. Plus gets you there before everyone else.') + '</p>' +
-      '<div class="stack g16">' + perk('bolt', t('Early access'), t('Apply to new campaigns 24 hours before everyone else.')) + perk('trend', t('Boosted ranking + Plus badge'), t('Businesses see you near the top of Discover.')) + perk('send', t('More applications'), t('Unlimited, instead of {cap} a month.', { cap: L.W.crMe.appsCap })) + '</div>' +
-      C.btn(t('See Plus'), { kind: 'white', full: 1, go: 'C-21' }) + '</div>' +
-      C.list([C.row({ icon: 'spark', tone: 'grey', title: t("You're on Free"), sub: t('{cap} applications a month, standard ranking.', { cap: L.W.crMe.appsCap }), chev: false })]) + '</div>';
-    return '<div class="pad stack g16" style="padding-top:116px"><div style="background:#17181B;color:#F4F4F2;border-radius:28px;padding:22px" class="stack g10"><span class="badge-p" style="align-self:flex-start">PLUS</span><b style="font-size:22px">' + t('Active@@plus') + '</b><span style="font-size:13px;color:#A3A6AC">' + t('Renews {date} · €[X.XX]/mo', { date: L.date(p.renews) }) + '</span></div>' +
-      C.list([C.row({ icon: 'bolt', title: t('Early access'), sub: t('On'), chev: false }), C.row({ icon: 'trend', title: t('Boosted ranking + badge'), sub: t('On'), chev: false }), C.row({ icon: 'send', title: t('Applications'), sub: t('Unlimited · {n} used this month', { n: L.W.crMe.appsUsed }), chev: false })]) +
-      C.list([C.row({ icon: 'store', title: t('Manage in App Store'), sub: t('Cancel or change billing'), act: 'manageStore', chev: false })]) + '</div>';
-  } });
 
   /* ───────── C-24 Edit profile ───────── */
   S('C-24', { name: 'Edit creator profile', render: (x) => {
@@ -460,6 +463,5 @@
 /* guards for screens that need context */
 (function () {
   const L = window.L;
-  L.S['C-22'].guard = () => (L.W.crMe.plus ? null : 'C-21');
   L.S['C-16'].guard = (ph, arg) => { const c = L.col(arg); return c && c.submittedAt ? null : 'C-15:' + arg; };
 })();

@@ -32,11 +32,11 @@
    - cobro / cuenta de cobro (payout)
    - entregar / entrega (submit)
    - briefing
-   - desbloquear redes (unlock handles)
-   - membresía
-   - acceso anticipado
+   - suscripción (subscription)
+   - monedero (wallet)
+   - retirar / retirada (withdraw)
    - declarados (self-reported)
    - Denunciar (report a user)
    - Informar de un problema (dispute)
-6. **Kept in English as product or brand names:** Creator Plus, PLUS, Lokaly Minimum / Premium / Exclusive, App Store, Apple Pay ("Pay"), Stripe, Reel, beach club, fitness.
+6. **Kept in English as product or brand names:** App Store, Apple Pay ("Pay"), Stripe, Reel, beach club, fitness.
 7. **[Bracketed placeholders]** for Matt are translated. They are still placeholders.

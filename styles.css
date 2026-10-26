@@ -282,7 +282,7 @@ html.app :is(input, textarea, [contenteditable]) { -webkit-user-select: text; us
 .pill.glass { background: rgba(255,255,255,.86); color: var(--ink); }
 .pill.sand { background: var(--tint); color: var(--detail); }
 .badge-v { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; color: var(--sky-d); }
-.badge-p { display: inline-flex; align-items: center; gap: 3px; height: 20px; padding: 0 7px; border-radius: 999px; background: var(--ink); color: var(--n-mark); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+.brand-mark { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
 /* photo things */
 .ph { background-size: cover; background-position: center; background-color: #DCE4EA; }
@@ -310,7 +310,6 @@ html.app :is(input, textarea, [contenteditable]) { -webkit-user-select: text; us
 .crgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
 .crcard { display: flex; flex-direction: column; gap: 8px; text-align: left; color: var(--ink); }
 .crcard .ph { height: 210px; border-radius: 22px; position: relative; background-position: center 22%; }
-.crcard .ph .badge-p { position: absolute; top: 10px; right: 10px; z-index: 1; }
 /* Portrait framing, per source image: head and shoulders, eyes about a third down, one warm grade. */
 .crcard .ph[style*="clara.webp"] { background-color: #000; background-size: 70% auto; background-position: 50% 100%; }
 .crcard .ph[style*="clara.webp"]::before { content: ''; position: absolute; inset: 0 0 auto; height: 104px; border-radius: 22px 22px 0 0; background: linear-gradient(#000 55%, rgba(0,0,0,0)); }
@@ -486,8 +485,6 @@ textarea.inp { padding: 14px 16px; min-height: 110px; resize: none; line-height:
 .plan.on .pr { background: var(--n-mark); border-color: var(--n-mark); color: var(--n-ground); }
 .plan .pn { font-size: 11px; font-weight: 600; letter-spacing: .2em; color: var(--n-mark); }
 .plan .pd { margin-top: 4px; font-size: 13px; color: var(--n-muted); }
-.plan .pbar { margin-top: 10px; height: 4px; border-radius: 2px; background: var(--n-line); display: flex; }
-.plan .pbar i { border-radius: 2px; background: var(--n-mark); }
 .plan .pp { font-size: 34px; line-height: 36px; letter-spacing: -0.045em; font-variant-numeric: tabular-nums; }
 .plan .pp sup { font-size: 16px; letter-spacing: 0; vertical-align: 12px; line-height: 0; color: var(--n-muted); }
 .plan .pp small { font-size: 17px; letter-spacing: 0; color: var(--n-muted); }

@@ -65,15 +65,28 @@
   L.threadFor = (bizId, creatorId) => L.W.threads.find((t) => t.bizId === bizId && t.creatorId === creatorId);
   L.myCollabsB = () => L.W.collabs.filter((c) => L.camp(c.campaignId).bizId === L.W.bizMe.id);
   L.myCollabsC = () => L.W.collabs.filter((c) => c.creatorId === L.W.crMe.id);
-  L.payB = (rate) => Math.round(rate * 1.1 * 100) / 100;
-  L.netC = (rate) => Math.round(rate * 0.9 * 100) / 100;
-  L.isUnlocked = (crId) => L.W.bizMe.unlocked.includes(crId);
+  // Business model v2: no Lokaly fee on collabs. The business pays the posted rate (IVA 21% included) and the creator's wallet
+  // gets all of it; Lokaly keeps 10% only when the creator withdraws (that fee includes IVA 21%).
+  L.payB = (rate) => rate;
+  L.netC = (rate) => rate;
+  const r2 = (n) => Math.round(n * 100) / 100;
+  L.iva = (gross) => r2(gross * 0.21 / 1.21);
+  L.wFee = (amount) => r2(amount * 0.1);
+  L.wNet = (amount) => r2(amount - L.wFee(amount));
+  L.MIN_WITHDRAW = 10;
+  // Wallet: one credit per released paid collab, minus every withdrawal that hasn't failed.
+  L.walletCredits = (crId) => L.W.collabs.filter((c) => c.creatorId === crId && ['completed', 'resolved_released'].includes(c.status) && L.camp(c.campaignId).type === 'paid')
+    .map((c) => ({ col: c, amount: L.camp(c.campaignId).rate, at: c.history[c.history.length - 1].at }));
+  L.myWithdrawals = () => L.W.withdrawals.filter((w) => w.creatorId === L.W.crMe.id);
+  L.walletBalance = () => r2(L.walletCredits(L.W.crMe.id).reduce((s, c) => s + c.amount, 0) - L.myWithdrawals().filter((w) => w.status !== 'failed').reduce((s, w) => s + w.amount, 0));
+  L.bankLabel = 'ES91 •••• 4821';
+  // Subscription gate: free until both free campaigns are published; then posting, browsing and inviting need the plan.
+  L.needsSub = () => !L.W.bizMe.sub && L.W.bizMe.freeUsed >= L.FREE_CAMPAIGNS;
   L.verified = (cr) => !!(cr.socials.ig.connected || cr.socials.tt.connected);
   L.bizMeter = () => { const m = L.myBiz().meter; const keys = Object.keys(m); return Math.round(25 + 75 * keys.filter((k) => m[k]).length / keys.length); };
   L.crMeter = () => { const m = L.W.crMe.meter; const keys = Object.keys(m); return Math.round(20 + 80 * keys.filter((k) => m[k]).length / keys.length); };
-  L.unlocksLeft = () => { const m = L.W.bizMe.membership; return m ? m.unlocks - m.used : 0; };
-  L.isEarly = (k) => k.earlyUntil && k.earlyUntil > L.W.now;
-  L.slotsLeft = (k) => k.slots - L.W.collabs.filter((c) => c.campaignId === k.id && ['active', 'awaiting', 'submitted', 'completed', 'disputed', 'resolved_released'].includes(c.status)).length;
+  // exceptId: a collab asking for the slot (an accepted invite waiting for funding) doesn't block itself.
+  L.slotsLeft = (k, exceptId) => k.slots - L.W.collabs.filter((c) => c.campaignId === k.id && c.id !== exceptId && ['active', 'awaiting', 'submitted', 'completed', 'disputed', 'resolved_released'].includes(c.status)).length;
 
   L.STATUS = {
     invited: ['Invited', 'sky'], applied: ['Applied', 'sky'], awaiting: ['Awaiting funding', 'peach'], active: ['Active', 'mint'],
@@ -128,6 +141,7 @@
       if (left <= 24 * L.H && !c.reminded) { c.reminded = true; L.notify('business', { icon: 'clock', tone: 'lilac', msg: "Reminder · 24h left to review {name}'s post", p: { name: { cr: c.creatorId } }, go: 'B-27:' + c.id }); }
       if (left <= 0) L.release(c, 'auto_released');
     });
+    L.W.withdrawals.forEach((w) => { if (w.status === 'pending' && w.arrive <= L.W.now) w.status = 'paid'; });
     L.emit();
   };
   L.release = function (col, reason) {
@@ -135,13 +149,11 @@
     L.setStatus(col, 'completed', { releaseReason: reason });
     if (k.type === 'paid') {
       L.W.txns.unshift({ id: L.id('tx'), bizId: b.id, kind: 'released', collabId: col.id, amount: L.payB(k.rate), at: L.W.now, ref: 'tr_' + L.W.seq + 'Lk' });
-      if (cr.id === L.W.crMe.id) L.W.payouts.unshift({ id: L.id('po'), creatorId: cr.id, collabId: col.id, gross: k.rate, net: L.netC(k.rate), status: 'pending', at: L.W.now + 2 * L.D, ref: 'po_' + L.W.seq + 'Lk' });
       L.email('E-04', b.name, 'Released {amt} to {name} · {title}', { col: col.id }, { amt: { eur: L.netC(k.rate) }, name: { cr: cr.id }, title: { camp: k.id } });
-      L.email('E-06', cr.first, 'Payout on its way · {amt}', { col: col.id }, { amt: { eur: L.netC(k.rate) } });
     }
     L.post(b.id, cr.id, { from: 'sys', deal: reason === 'auto_released' ? 'auto' : 'released', collabId: col.id }, k.id);
     const auto = reason === 'auto_released';
-    L.notify('creator', { icon: 'euro', tone: 'peach', cat: 'payments', msg: k.type === 'paid' ? (auto ? 'Auto-released · {amt} is on its way' : 'Approved · {amt} is on its way') : '{biz} marked your collab complete', p: { amt: { eur: L.netC(k.rate) }, biz: { biz: b.id } }, go: 'S-12:' + col.id });
+    L.notify('creator', { icon: 'euro', tone: 'peach', cat: 'payments', msg: k.type === 'paid' ? (auto ? 'Auto-released · {amt} is in your wallet' : 'Approved · {amt} is in your wallet') : '{biz} marked your collab complete', p: { amt: { eur: L.netC(k.rate) }, biz: { biz: b.id } }, go: 'S-12:' + col.id });
     L.notify('business', { icon: 'check', tone: 'mint', cat: 'payments', msg: auto ? 'Auto-released to {name} · {title}' : 'Released to {name} · {title}', p: { name: { cr: cr.id }, title: { camp: k.id } }, go: 'S-12:' + col.id });
   };
 
@@ -157,7 +169,6 @@
     users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14a6.5 6.5 0 0 1 3.5 6"/>',
     search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>', sliders: '<path d="M4 8h9M17 8h3M4 16h3M11 16h9"/><circle cx="15" cy="8" r="2"/><circle cx="9" cy="16" r="2"/>',
     check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>', lock: '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
-    unlock: '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 7.5-2"/>',
     pin: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
     cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     euro: '<path d="M18 7.5A7 7 0 1 0 18 16.5"/><path d="M4 10.5h9M4 13.5h9"/>',
@@ -187,6 +198,11 @@
   };
   L.I = (name, size, sw) => '<svg width="' + (size || 20) + '" height="' + (size || 20) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (sw || 1.9) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (P[name] || '') + '</svg>';
   L.I.verified = (s) => '<svg width="' + (s || 16) + '" height="' + (s || 16) + '" viewBox="0 0 24 24" aria-hidden="true"><path fill="#2F6FB0" d="M12 1.8l2.5 1.9 3.1-.1 1 3 2.6 1.8-1 3 1 3-2.6 1.8-1 3-3.1-.1L12 22.2l-2.5-1.9-3.1.1-1-3-2.6-1.8 1-3-1-3 2.6-1.8 1-3 3.1.1z"/><path d="m8.6 12.2 2.3 2.3 4.5-4.7" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  // Platform app marks (B-05 shows each creator's most popular platform with its app logo).
+  const BRAND = { Instagram: ['linear-gradient(45deg,#F9A13A,#E1306C 55%,#833AB4)', 'insta'], TikTok: ['#111214', 'tiktok'], YouTube: ['#E62117', 'youtube'] };
+  L.I.brand = (platform, s) => { const b = BRAND[platform] || ['#6B7178', 'globe']; s = s || 18; return '<span class="brand-mark" aria-hidden="true" style="width:' + s + 'px;height:' + s + 'px;border-radius:' + Math.round(s * 0.28) + 'px;background:' + b[0] + '">' + L.I(b[1], Math.round(s * 0.66), 2.4).replace('stroke="currentColor"', 'stroke="#fff"') + '</span>'; };
+  // A creator's biggest audience: connected Instagram/TikTok first, else the largest self-reported platform.
+  L.topPlatform = (cr) => { const all = []; if (cr.socials.ig.connected) all.push({ platform: 'Instagram', followers: cr.socials.ig.followers, verified: true }); if (cr.socials.tt.connected) all.push({ platform: 'TikTok', followers: cr.socials.tt.followers, verified: true }); cr.socials.other.forEach((o) => all.push({ platform: o.platform, followers: o.followers, verified: false })); return all.sort((a, z) => z.followers - a.followers)[0] || null; };
   L.I.apple = (s) => '<svg width="' + (s || 20) + '" height="' + (s || 20) + '" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 12.6c0-2.5 2-3.7 2.1-3.8-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.8-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.8-1.1-2.9-4.2zM13.9 5.1c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg>';
   L.I.google = (s) => '<svg width="' + (s || 20) + '" height="' + (s || 20) + '" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.6a4.8 4.8 0 0 1-2.1 3.1v2.6h3.4c2-1.8 3.1-4.5 3.1-7.6z"/><path fill="#34A853" d="M12 22.5c2.8 0 5.2-.9 6.9-2.5l-3.4-2.6c-.9.6-2.1 1-3.5 1-2.7 0-5-1.8-5.8-4.3H2.7v2.7A10.5 10.5 0 0 0 12 22.5z"/><path fill="#FBBC05" d="M6.2 14.1a6.3 6.3 0 0 1 0-4.1V7.3H2.7a10.5 10.5 0 0 0 0 9.5z"/><path fill="#EA4335" d="M12 5.7c1.5 0 2.9.5 4 1.6l3-3A10.5 10.5 0 0 0 2.7 7.3L6.2 10c.8-2.5 3.1-4.3 5.8-4.3z"/></svg>';
 
@@ -271,11 +287,11 @@
   C.empty = (o) => '<div class="empty"><span class="eic" data-in="pop">' + L.I(o.icon || 'spark', 26, 1.8) + '</span><b>' + esc(o.title) + '</b><p>' + esc(o.body) + '</p>' + (o.cta ? '<div class="mt8">' + o.cta + '</div>' : '') + '</div>';
   C.abar = (o) => '<div class="abar' + (o.title ? '' : ' solo') + '">' + (o.title ? '<span class="ab-t"><b>' + o.title + '</b>' + (o.sub ? '<span>' + o.sub + '</span>' : '') + '</span>' : '') + o.btn + '</div>';
   C.sheetHead = (title, sub) => '<div class="grab" aria-hidden="true"></div><div class="sheet-h"><h2>' + esc(title) + '</h2>' + C.gbtn('close', { close: 1, aria: t('Close') }) + '</div>' + (sub ? '<p class="sub" style="margin:-6px 0 16px">' + sub + '</p>' : '');
-  /* Deliberate open question for Matt (pending terms, legal wording, numbers). Hidden by the desk toggle 'Show open questions' (body.hide-oq). */
+  /* Deliberate open question for Omar / Lokaly (pending terms, legal wording, numbers). Hidden by the desk toggle 'Show open questions' (body.hide-oq). */
   C.oq = (text) => '<span class="oq" data-oq><b class="oq-l">' + esc(t('Open question')) + '</b>' + (text ? '<span class="oq-t">' + esc(text) + '</span>' : '') + '</span>';
   C.money = (lines) => '<div class="money">' + lines.map((l) => '<div class="ml' + (l[2] ? ' tot' : '') + '"><span>' + esc(l[0]) + '</span><span>' + l[1] + '</span></div>').join('') + '</div>';
   C.banner = (tone, icon, html) => '<div class="banner ' + tone + '" data-row="bn:' + tone + ':' + L.hash(html) + '">' + L.I(icon, 18, 2) + '<div>' + html + '</div></div>';
-  C.badges = (cr) => (L.verified(cr) ? '<span class="badge-v">' + L.I.verified(15) + t('Verified') + '</span>' : '') + (cr.plus ? ' <span class="badge-p">PLUS</span>' : '');
+  C.badges = (cr) => (L.verified(cr) ? '<span class="badge-v">' + L.I.verified(15) + t('Verified') + '</span>' : '');
   C.prog = (n) => '<div class="prog" role="progressbar" aria-label="' + esc(t('Step {n} of 4', { n })) + '" aria-valuenow="' + n + '" aria-valuemin="1" aria-valuemax="4">' + [1, 2, 3, 4].map((i) => '<i class="' + (i <= n ? 'on' : '') + '"' + L.tk('prog:' + i, i <= n ? 'on' : '', 'wipe') + '></i>').join('') + '</div>';
   // The one stepper: 4-segment bar, "Step n of 4" (plus an optional note), then the serif title. Onboarding and the campaign wizard both use it.
   C.stepHead = (n, title, sub, meta) => C.prog(n) + '<div class="stack g6"><span class="meta">' + (meta || t('Step {n} of 4', { n })) + '</span><h1 class="lt">' + title + '</h1>' + (sub ? '<p class="sub" style="margin:0">' + sub + '</p>' : '') + '</div>';
@@ -285,20 +301,18 @@
 
   C.campaignCard = (k, o) => {
     const b = L.biz(k.bizId);
-    const early = L.isEarly(k);
     const price = k.type === 'paid' ? L.eur(k.rate) : t('Experience');
     const linked = !(o && o.go === '');
     return '<' + (linked ? 'button type="button"' : 'div') + ' class="ccard"' + (linked ? ' data-go="' + (o && o.go ? o.go : 'C-09:' + k.id) + '"' : '') + '>' +
-      '<div class="ph" role="img" aria-label="' + esc(k.title) + '" style="background-image:url(' + k.cover + ')">' + (k.type === 'experience' ? C.pill(t('Experience'), 'glass', 'gift') : C.pill(t('Paid'), 'glass', 'euro')) + (early ? C.pill(t('Early access'), 'ink', 'bolt') : '') + '</div>' +
+      '<div class="ph" role="img" aria-label="' + esc(k.title) + '" style="background-image:url(' + k.cover + ')">' + (k.type === 'experience' ? C.pill(t('Experience'), 'glass', 'gift') : C.pill(t('Paid'), 'glass', 'euro')) + '</div>' +
       '<div class="cb"><span class="stack g4 grow"><span class="meta">' + esc(b.name) + '</span><b>' + esc(k.title) + '</b><span class="meta">' + esc(t('{town} · {km} km · Apply by {date}', { town: t(k.town), km: L.num(k.km), date: L.dshort(k.applyBy) })) + '</span></span>' +
       '<span class="stack g4" style="align-items:flex-end"><span class="price">' + price + '</span><span class="meta">' + (k.type === 'paid' ? t('per creator') : esc(k.offer.split(' + ')[0])) + '</span></span></div></' + (linked ? 'button' : 'div') + '>';
   };
   C.creatorCard = (cr) => {
-    const igf = cr.socials.ig.connected ? cr.socials.ig.followers : null;
-    const self = cr.socials.other[0];
-    return '<button type="button" class="crcard" data-go="B-08:' + cr.id + '"><div class="ph" role="img" aria-label="' + esc(cr.first) + '" style="background-image:url(' + cr.photo + ')">' + (cr.plus ? '<span class="badge-p">PLUS</span>' : '') + '</div>' +
+    const top = L.topPlatform(cr);
+    return '<button type="button" class="crcard" data-go="B-08:' + cr.id + '"><div class="ph" role="img" aria-label="' + esc(cr.first) + '" style="background-image:url(' + cr.photo + ')"></div>' +
       '<span class="stack g4" style="padding:0 4px"><span class="hrow" style="gap:6px"><b style="font-size:16px;font-weight:600">' + esc(cr.first) + '</b>' + (L.verified(cr) ? L.I.verified(15) : '') + '<span class="meta crtown">' + esc(t(cr.town)) + '</span></span>' +
-      '<span class="meta">' + esc(cr.niches.map((v) => t(v)).join(' · ')) + '</span><span class="meta">' + esc((igf ? t('{n} on Instagram', { n: L.k(igf) }) : self ? t('{n} self-reported', { n: L.k(self.followers) }) : t('New'))) + '</span></span></button>';
+      '<span class="meta">' + esc(cr.niches.map((v) => t(v)).join(' · ')) + '</span><span class="meta hrow" style="gap:6px">' + (top ? L.I.brand(top.platform, 16) + esc(top.verified ? t('{n} on {platform}', { n: L.k(top.followers), platform: top.platform }) : t('{n} on {platform} · self-reported', { n: L.k(top.followers), platform: top.platform })) : esc(t('New'))) + '</span></span></button>';
   };
   C.xcard = (col) => {
     const k = L.camp(col.campaignId), b = L.biz(k.bizId), cr = L.cr(col.creatorId);
@@ -328,7 +342,7 @@
       case 'awaiting': return k.type === 'paid' ? t('Waiting for funding') : t('Waiting for confirmation');
       case 'active': return !col.visitDate ? t('Set visit date') : col.visitDate > L.W.now ? t('Visit {when}', { when: L.dt(col.visitDate) }) : t('Submit your post');
       case 'submitted': return k.type === 'paid' ? t('Releasing in {h}h', { h: L.hoursLeft(col) }) : t('Completes in {h}h', { h: L.hoursLeft(col) });
-      case 'completed': return k.type === 'paid' ? t('Paid {amt}', { amt: L.eur(L.netC(k.rate)) }) : t('Completed');
+      case 'completed': return k.type === 'paid' ? t('{amt} in your wallet', { amt: L.eur(L.netC(k.rate)) }) : t('Completed');
       case 'disputed': return t('Lokaly is reviewing');
       default: return t(L.STATUS[col.status][0]);
     }

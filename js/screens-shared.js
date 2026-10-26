@@ -1,4 +1,4 @@
-/* Shared screens S-01 … S-22 plus the Stripe PaymentSheet and the App Store purchase sheet. */
+/* Shared screens S-01 … S-22 plus the Stripe PaymentSheet and the App Store subscription sheet. */
 (function () {
   const L = window.L, C = L.C, I = L.I, esc = L.esc;
   const t = L.t;
@@ -24,15 +24,18 @@
   L.A.setLang = (ph, l) => { L.setLang(l); if (l === 'es') ph.toast(t('Español · draft copy pending native review')); };
 
   /* ───────── S-03 Role ───────── */
+  // v2 role picker: two selectable rows (photo, promise, what it costs) and one Continue, instead of two tap-to-go photo cards.
   S('S-03', { name: 'Onboarding · Role', render: (x) => {
-    const card = (role, title, sub, photo) => '<button type="button" data-act="pickRole" data-arg="' + role + '" style="position:relative;height:250px;border-radius:28px;overflow:hidden;color:#fff;text-align:left;display:block;width:100%">' + C.ph(photo, 'position:absolute;inset:0;background-position:center 30%') +
-      '<span aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,0) 35%,rgba(0,0,0,.72))"></span><span style="position:absolute;left:20px;right:20px;bottom:18px;display:flex;flex-direction:column;gap:4px"><b class="serif" style="font-size:32px;font-weight:400;line-height:34px">' + title + '</b><span style="font-size:14px;opacity:.9">' + sub + '</span></span>' +
-      '</button>';
+    const sel = x.f.role;
+    const opt = (role, title, sub, perk, photo) => '<button type="button" class="card p hrow g14" role="radio" aria-checked="' + (sel === role) + '" data-set="role" data-val="' + role + '" style="width:100%;text-align:left;align-items:center;box-shadow:none;border:1.5px solid ' + (sel === role ? 'var(--ink)' : 'var(--border)') + '">' + C.ph(photo, 'width:76px;height:96px;border-radius:16px;flex-shrink:0;background-position:center 30%') +
+      '<span class="grow stack g4"><b class="serif" style="font-size:25px;font-weight:400;line-height:27px">' + title + '</b><span class="sub" style="font-size:14px;line-height:19px">' + sub + '</span><span class="meta hrow" style="gap:4px">' + I('check', 13, 2.4) + perk + '</span></span><span class="radio' + (sel === role ? ' on' : '') + '"></span></button>';
     x.fix(C.top({ title: '' }));
+    x.fix(C.abar({ btn: C.btn(t('Continue'), { kind: 'dark', full: 1, act: 'pickRole', arg: sel || '', dis: !sel }) }));
     return '<div class="pad top-pad stack g20" style="padding-top:110px">' + C.stepHead(1, t('Which side of the table are you on?'), null, t('Step {n} of {total}', { n: 1, total: 4 })) +
-      card('business', t('I run a business'), t('Find local creators for your venue'), L.img('restaurant')) + card('creator', t('I create content'), t('Get paid to post about places you love'), L.img('lucia')) + '</div>';
+      '<div class="stack g12" role="radiogroup" aria-label="' + esc(t('Your role')) + '">' + opt('business', t('I run a business'), t('Find local creators for your venue'), t('First 2 campaigns free'), L.img('restaurant')) + opt('creator', t('I create content'), t('Get paid to post about places you love'), t('Free · keep 90% when you withdraw'), L.img('lucia')) + '</div></div>';
   } });
   L.A.pickRole = (ph, role) => {
+    if (!role) return;
     if (role !== ph.role) { ph.toast(role === 'business' ? t('That flow runs on the business phone') : t('That flow runs on the creator phone')); return; }
     ph.ob.role = role;
     ph.go(role === 'business' ? 'B-01' : 'C-01');
@@ -102,7 +105,7 @@
   S('S-07', { name: 'Notifications primer', render: (x) => {
     const ex = x.role === 'business'
       ? [t('{name} applied to {title}', { name: 'Lucía', title: t('Sunset daybed reel') }), t('Submission ready · {h}h to review', { h: 72 })]
-      : [t('You\'re in · {amt} secured', { amt: L.eur(180) }), t('{biz} approved your post', { biz: 'Casa Brisa' })];
+      : [t('You\'re in · {amt} secured', { amt: L.eur(200) }), t('{biz} approved your post', { biz: 'Casa Brisa' })];
     return '<div class="pad stack g20" style="padding-top:150px"><div class="stack g10">' + ex.map((s, i) => '<div class="push" style="position:static;animation:none;opacity:' + (i ? '.7' : '1') + ';transform:scale(' + (i ? '.96' : '1') + ')"><span class="pi">L</span><span class="pt"><b>Lokaly</b><span>' + esc(s) + '</span></span><span class="meta">' + (i ? t('{h}h', { h: 2 }) : t('now')) + '</span></div>').join('') + '</div>' +
       '<h1 class="lt mt16">' + t('Know the moment it matters') + '</h1><p class="sub" style="margin:0">' + t('Applications, funding, submissions and payouts. One notification per event, never more.') + '</p>' +
       '<div class="stack g10 mt12">' + C.btn(t('Turn on notifications'), { kind: 'dark', full: 1, act: 'perm', arg: 'push|granted' }) + C.btn(t('Not now'), { kind: 'ghost', full: 1, act: 'perm', arg: 'push|denied' }) + '</div></div>';
@@ -112,8 +115,14 @@
     L.W.perms[ph.role][k] = v;
     if (ph.top().id === 'S-06' && ph.stack.length > 1 && ph.stack[0].id !== 'S-06' && ph.ob.fromSettings) { ph.back(); return; }
     if (k === 'location') ph.go('S-07');
-    else { ph.go(home(ph), { root: 1 }); if (ph.role === 'business') L.W.bizMe.onboarded = true; else L.W.crMe.onboarded = true; L.W.fresh = false; }
+    else {
+      // v2: profiles are complete before entering the app, so onboarding ends on the required profile step until it's 100%.
+      const done = (ph.role === 'business' ? L.bizMeter() : L.crMeter()) >= 100;
+      ph.go(done ? home(ph) : ph.role === 'business' ? 'B-04' : 'C-05', { root: 1 });
+      if (ph.role === 'business') L.W.bizMe.onboarded = true; else L.W.crMe.onboarded = true; L.W.fresh = false;
+    }
   };
+  L.A.profileDone = (ph) => ph.go(home(ph), { root: 1 });
 
   /* ───────── S-08 Notifications inbox ───────── */
   S('S-08', { name: 'Notifications', render: (x) => {
@@ -285,18 +294,17 @@
     // contextual banner
     if (col.status === 'submitted') html += '<div class="tile lilac wide" style="cursor:default"><span class="tl">' + t('Review window') + '</span><span class="tv">' + L.hoursLeft(col) + '<small>h</small></span><span class="ts">' + (biz ? t('left to review, then it releases automatically') : paid ? t('until {amt} releases unless {biz} reports a problem', { amt: L.eur(L.netC(k.rate)), biz: b.name }) : t('until it completes unless {biz} reports a problem', { biz: b.name })) + '</span></div>';
     if (col.status === 'disputed') html += C.banner('bad', 'alert', t('<b>Lokaly is reviewing this collab.</b><br>Funds are frozen and the {h}h timer is paused. We\'ll contact both sides within [X] business days.', { h: 72 }));
-    if (col.status === 'completed' || col.status === 'resolved_released') html += C.banner('ok', 'check', '<b>' + (paid ? (biz ? t('{amt} released to {name}.', { amt: L.eur(L.netC(k.rate)), name: cr.first }) : t('{amt} paid to you.', { amt: L.eur(L.netC(k.rate)) })) : t('Collab complete.')) + '</b><br>' + t('A {pair} card now shows on both profiles.', { pair: esc(cr.first) + ' × ' + esc(b.name) }));
-    if (!biz && paid && ['active', 'submitted'].includes(col.status) && L.W.crMe.payout !== 'verified') html += '<button type="button" class="banner warn2" data-go="C-17" style="text-align:left;width:100%">' + I('alert', 18, 2) + '<span>' + t('<b>Add a payout account to get paid.</b><br>Takes 3 minutes with Stripe. Your money stays held until then.') + '</span></button>';
+    if (col.status === 'completed' || col.status === 'resolved_released') html += C.banner('ok', 'check', '<b>' + (paid ? (biz ? t('{amt} released to {name}.', { amt: L.eur(L.netC(k.rate)), name: cr.first }) : t('{amt} is in your wallet.', { amt: L.eur(L.netC(k.rate)) })) : t('Collab complete.')) + '</b><br>' + t('A {pair} card now shows on both profiles.', { pair: esc(cr.first) + ' × ' + esc(b.name) }));
 
     html += '<div class="card p stack g12"><h2 class="h2">' + t('Status') + '</h2>' + C.timeline(col) + '</div>';
 
     // money
     if (paid) {
-      const fee = t('Lokaly fee 10%');
-      const lines = biz ? [[t('Creator rate'), L.eur(k.rate, 2)], [fee, L.eur(k.rate * 0.1, 2)], [col.status === 'cancelled' || col.status === 'resolved_refunded' ? t('Refunded to you') : t('You pay'), L.eur(L.payB(k.rate), 2), 1]] : [[t('Rate'), L.eur(k.rate, 2)], [fee, '−' + L.eur(k.rate * 0.1, 2)], [t('You receive'), L.eur(L.netC(k.rate), 2), 1]];
-      html += '<div class="card p stack g12"><div class="hrow between"><h2 class="h2">' + t('Payment') + '</h2>' + C.pill(t('Protected by Stripe'), 'peach', 'shield') + '</div>' + (['applied', 'invited', 'awaiting'].includes(col.status) ? C.banner('grey', 'clock', biz ? t('Nothing is charged until you accept and fund.') : t('The business funds when they accept you. Then it\'s held for you.')) : C.escrow(col)) + C.money(lines) + '</div>';
+      // v2: no Lokaly fee on the collab. Business: the rate with its IVA; creator: the full rate goes to the wallet.
+      const lines = biz ? [[t('Creator rate'), L.eur(k.rate, 2)], [t('Of which IVA 21%'), L.eur(L.iva(k.rate), 2)], [col.status === 'cancelled' || col.status === 'resolved_refunded' ? t('Refunded to you') : t('You pay'), L.eur(L.payB(k.rate), 2), 1]] : [[t('Rate'), L.eur(k.rate, 2)], [t('To your wallet'), L.eur(L.netC(k.rate), 2), 1]];
+      html += '<div class="card p stack g12"><div class="hrow between"><h2 class="h2">' + t('Payment') + '</h2>' + C.pill(t('Protected by Stripe'), 'peach', 'shield') + '</div>' + (['applied', 'invited', 'awaiting'].includes(col.status) ? C.banner('grey', 'clock', biz ? t('Nothing is charged until you accept and fund.') : t('The business funds when they accept you. Then it\'s held for you.')) : C.escrow(col)) + C.money(lines) + (biz ? '' : '<span class="meta">' + t('Lokaly takes 10% only when you withdraw.') + '</span>') + '</div>';
     } else {
-      html += '<div class="card p stack g8"><div class="hrow between"><h2 class="h2">' + t('The offer') + '</h2>' + C.pill(t('No payment held'), 'grey') + '</div><b style="font-size:16px">' + esc(k.offer) + '</b><span class="meta">' + t('Estimated value {amt} · Booking fee paid by {biz} at publish', { amt: L.eur(k.value), biz: esc(b.name) }) + '</span></div>';
+      html += '<div class="card p stack g8"><div class="hrow between"><h2 class="h2">' + t('The offer') + '</h2>' + C.pill(t('No payment held'), 'grey') + '</div><b style="font-size:16px">' + esc(k.offer) + '</b><span class="meta">' + t('Estimated value {amt} · no fee', { amt: L.eur(k.value) }) + '</span></div>';
     }
 
     // visit date
@@ -318,7 +326,7 @@
 
     // secondary actions
     const sec = [];
-    if (['awaiting', 'active'].includes(col.status)) sec.push(C.row({ icon: 'close', tone: 'grey', title: t('Cancel collab'), sub: biz ? (paid ? t('Full refund, minus Stripe costs') : t('Free before submission')) : t('Before you submit only'), go: 'S-14:' + col.id }));
+    if (['awaiting', 'active'].includes(col.status)) sec.push(C.row({ icon: 'close', tone: 'grey', title: t('Cancel collab'), sub: biz ? (paid ? t('Refund minus non-refundable charges') : t('Free before submission')) : t('Before you submit only'), go: 'S-14:' + col.id }));
     if (['active', 'submitted'].includes(col.status) && (biz || col.status === 'active')) sec.push(C.row({ icon: 'flag', tone: 'red', title: t('Report a problem'), sub: biz ? t('No-show, content not as briefed…') : t('Business no-show or didn\'t honour the brief'), go: 'S-13:' + col.id }));
     if (col.status === 'submitted' && !biz) sec.push(C.row({ icon: 'help', tone: 'grey', title: t('Need help?'), sub: t('Cancelling isn\'t possible after you submit'), go: 'S-18' }));
     if (col.status === 'disputed') sec.push(C.row({ icon: 'help', tone: 'grey', title: t('Add information for Lokaly'), sub: t('Photos, messages, anything useful'), go: 'S-18' }));
@@ -385,11 +393,11 @@
     x.fix(C.top({ title: t('Cancel collab'), solid: 1 }));
     if (!['awaiting', 'active', 'invited', 'applied'].includes(col.status)) return '<div class="pad stack g16" style="padding-top:120px">' + C.empty({ icon: 'lock', title: t('Cancelling has closed'), body: t('Collabs can only be cancelled before the post is submitted. If something is wrong, report a problem and Lokaly will step in.'), cta: col.status === 'submitted' && biz ? C.btn(t('Report a problem'), { kind: 'dark', sm: 1, go: 'S-13:' + col.id }) : C.btn(t('Get help'), { kind: 'dark', sm: 1, go: 'S-18' }) }) + '</div>';
     const funded = col.history.some((h) => h.s === 'active') && k.type === 'paid';
-    const lines = funded ? (biz ? [[t('Held for this collab'), L.eur(L.payB(k.rate), 2)], [t('Stripe costs (not refundable)'), '−' + L.eur(L.stripeCost(L.payB(k.rate)), 2)], [t('Refunded to your card'), L.eur(L.payB(k.rate) - L.stripeCost(L.payB(k.rate)), 2), 1]] : [[t('Your rate'), L.eur(k.rate, 2)], [t('You receive'), L.eur(0, 2), 1]]) : null;
+    const lines = funded ? (biz ? [[t('Held for this collab'), L.eur(L.payB(k.rate), 2)], [t('Non-refundable charges'), '−' + L.eur(L.stripeCost(L.payB(k.rate)), 2)], [t('Refunded to your card'), L.eur(L.payB(k.rate) - L.stripeCost(L.payB(k.rate)), 2), 1]] : [[t('Your rate'), L.eur(k.rate, 2)], [t('You receive'), L.eur(0, 2), 1]]) : null;
     const r = x.f.reason;
     const what = biz
-      ? (funded ? t('Refunds reach your card in 5–10 days. {name} is told straight away.', { name: cr.first }) : t('{name} is told straight away.', { name: cr.first }))
-      : (funded ? t('{name} is refunded, minus Stripe costs.', { name: b.name }) : t('{name} is told straight away.', { name: b.name }));
+      ? (funded ? t('Non-refundable charges are the card processing costs, shown in one line. Refunds reach your card in 5–10 days. {name} is told straight away.', { name: cr.first }) : t('{name} is told straight away.', { name: cr.first }))
+      : (funded ? t('{name} is refunded, minus non-refundable charges.', { name: b.name }) : t('{name} is told straight away.', { name: b.name }));
     x.fix(C.abar({ btn: C.btn(t('Cancel collab'), { kind: 'dang', full: 1, act: 'cancelCollab', arg: col.id, dis: !r }) }));
     return '<div class="pad stack g20" style="padding-top:116px"><h1 class="lt" style="font-size:32px;line-height:34px">' + t('Cancel with {name}?', { name: esc(biz ? cr.first : b.name) }) + '</h1>' +
       '<div class="card p stack g10"><b>' + t('What happens') + '</b>' + (lines ? C.money(lines) : '') + '<span class="sub">' + what + '</span></div>' +
@@ -451,17 +459,17 @@
   // [question, answer, params()] — answers keep money/percent/hours as params so they format per locale.
   const FAQ = {
     business: [
-      ['When am I charged?', 'When you accept a creator, you fund the rate plus {pct}. Lokaly holds it until you approve the post, or {h} hours pass after submission.', () => ({ pct: L.pct(10), h: 72 })],
-      ['What does an unlock give me?', 'A creator\'s external social handles and links. Browsing, messaging and invites are always free.'],
-      ['Can I cancel?', 'Either side can cancel before the post is submitted. You\'re refunded in full, minus Stripe costs.'],
-      ['What if a creator doesn\'t show up?', 'Report a problem from the collab. Funds freeze and Lokaly reviews it by hand.'],
-      ['What is the Experience fee?', 'A flat {amt} booking fee per Experience campaign, charged when you publish. No money is held for creators.', () => ({ amt: L.eur(39.99, 2) })]
+      ['When am I charged?', 'When you accept a creator, you fund their rate (IVA included). There are no Lokaly fees on collabs. Lokaly holds it until you approve the post, or {h} hours pass after submission.', () => ({ h: 72 })],
+      ['What does the subscription include?', 'Your first {n} campaigns are free. After that, {price}/mo lets you post campaigns, browse every creator and send invites.', () => ({ n: L.FREE_CAMPAIGNS, price: L.eur(L.SUB_PRICE, 2) })],
+      ['How many creators per campaign?', 'One. To work with more creators, post another campaign.'],
+      ['Can I cancel?', 'Either side can cancel before the post is submitted. You\'re refunded, minus non-refundable charges.'],
+      ['What if a creator doesn\'t show up?', 'Report a problem from the collab. Funds freeze and Lokaly reviews it by hand.']
     ],
     creator: [
-      ['When do I get paid?', 'When the business approves your post, or automatically {h} hours after you submit. Payouts land in 2–5 business days.', () => ({ h: 72 })],
-      ['What does Lokaly take?', '{pct} of the rate. A {gross} campaign pays you {net}.', () => ({ pct: L.pct(10), gross: L.eur(200), net: L.eur(180) })],
-      ['Who sees my surname and handles?', 'Nobody, until a business unlocks you. Even then, notifications only ever use your first name.'],
-      ['What is Creator Plus?', 'Early access to new campaigns, a Plus badge with boosted ranking, and more applications each month.'],
+      ['When do I get paid?', 'When the business approves your post, or automatically {h} hours after you submit, the full rate goes to your Lokaly wallet. Withdraw to your bank whenever you like.', () => ({ h: 72 })],
+      ['What does Lokaly take?', '{pct} when you withdraw, nothing before. Withdraw {gross} and {net} lands in your bank.', () => ({ pct: L.pct(10), gross: L.eur(200), net: L.eur(180) })],
+      ['Who sees my surname?', 'Nobody. Businesses see your first name and your social handles, and notifications only ever use your first name.'],
+      ['Is there a limit on applications?', 'No. Apply to as many campaigns as you like.'],
       ['Can I cancel?', 'Yes, before you submit. After that, contact Lokaly via Help.']
     ]
   };
@@ -478,13 +486,15 @@
     const view = x.arg === 'view';
     x.fix(C.top({ title: view ? t('Terms & privacy') : t('Before you start'), solid: 1 }));
     const f = x.f; const creator = x.role === 'creator';
-    const ok = f.terms && (!creator || f.rights);
+    const ok = f.terms && (!creator || (f.rights && f.cterms));
     const ck = (key, title, sub, req) => '<button type="button" class="row" role="checkbox" aria-checked="' + !!f[key] + '" data-toggle="' + key + '"><span class="check' + (f[key] ? ' on' : '') + '">' + (f[key] ? I('check', 15, 3) : '') + '</span><span class="rt"><b style="font-size:14.5px">' + title + (req ? '' : ' <span class="meta">' + t('(optional)') + '</span>') + '</b><span>' + sub + '</span></span></button>';
     const pct = L.pct(10);
-    const body = '<div class="card p stack g10" style="max-height:' + (view ? 'none' : '250px') + ';overflow:auto"><span class="caps ink3">' + t('Version {v} · {date}', { v: '1.0', date: L.dshort(new Date(2026, 9, 19).getTime()) + ' 2026' }) + '</span><b>' + t('Terms of Service') + '</b><p class="sub" style="margin:0">' + C.oq(t('Final wording supplied by Matt\'s lawyer.')) + ' ' + t('Lokaly connects local businesses with creators. Payments for paid collabs are processed and held by Stripe Connect. Fees: {pct} added for businesses, {pct} deducted for creators. Either side may cancel before submission. Disputes freeze funds and are reviewed by Lokaly.', { pct }) + '</p><b>' + t('Privacy Policy') + '</b><p class="sub" style="margin:0">' + C.oq(t('GDPR wording from Matt\'s lawyer.')) + ' ' + t('Data is stored in the EU. Creators\' surnames are never shown; social handles are visible only to businesses who unlock them.') + '</p><b>' + t('Content rights') + '</b><p class="sub" style="margin:0">' + C.oq(t('Clause pending.')) + ' ' + t('Businesses may repost delivered content on their own channels with credit for 12 months.') + '</p></div>';
+    const body = '<div class="card p stack g10" style="max-height:' + (view ? 'none' : '250px') + ';overflow:auto"><span class="caps ink3">' + t('Version {v} · {date}', { v: '1.0', date: L.dshort(new Date(2026, 9, 19).getTime()) + ' 2026' }) + '</span><b>' + t('Terms of Service') + '</b><p class="sub" style="margin:0">' + C.oq(t('Final wording supplied by Lokaly\'s lawyer.')) + ' ' + t('Lokaly connects local businesses with creators. Businesses get {n} campaigns free, then subscribe for {price}/mo; there are no fees on collabs. Payments for paid collabs are processed and held by Stripe Connect. Either side may cancel before submission. Disputes freeze funds and are reviewed by Lokaly.', { n: L.FREE_CAMPAIGNS, price: L.eur(L.SUB_PRICE, 2) }) + '</p>' +
+      (creator || view ? '<b>' + t('Creator Terms of Service') + '</b><p class="sub" style="margin:0">' + C.oq(t('Final wording supplied by Lokaly\'s lawyer.')) + ' ' + t('Lokaly is free for creators. Approved collabs pay the full rate into your Lokaly wallet, on approval or automatically 72 hours after you submit. Lokaly keeps {pct} of each withdrawal (IVA included). You deliver what the brief asks for, label it as an ad where the law requires, and can cancel only before you submit.', { pct }) + '</p>' : '') +
+      '<b>' + t('Privacy Policy') + '</b><p class="sub" style="margin:0">' + C.oq(t('GDPR wording from Lokaly\'s lawyer.')) + ' ' + t('Data is stored in the EU. Creators\' surnames are never shown.') + '</p><b>' + t('Content rights') + '</b><p class="sub" style="margin:0">' + C.oq(t('Clause pending.')) + ' ' + t('Businesses may repost delivered content on their own channels with credit for 12 months.') + '</p></div>';
     if (view) return '<div class="pad stack g16" style="padding-top:116px">' + body + '</div>';
     x.fix(C.abar({ btn: C.btn(t('Agree & continue'), { kind: 'dark', full: 1, act: 'consent', arg: x.arg, dis: !ok }) }));
-    return '<div class="pad stack g16" style="padding-top:116px">' + body + C.list([ck('terms', t('I agree to the Terms and Privacy Policy'), t('Required'), 1)].concat(creator ? [ck('rights', t('I grant content rights for delivered posts'), t('Required to apply to campaigns'), 1)] : []).concat([ck('mkt', t('Send me Lokaly news'), t('Max one email a month'), 0)])) + '</div>';
+    return '<div class="pad stack g16" style="padding-top:116px">' + body + C.list([ck('terms', t('I agree to the Terms and Privacy Policy'), t('Required'), 1)].concat(creator ? [ck('cterms', t('I agree to the Creator Terms of Service'), t('Required'), 1), ck('rights', t('I grant content rights for delivered posts'), t('Required to apply to campaigns'), 1)] : []).concat([ck('mkt', t('Send me Lokaly news'), t('Max one email a month'), 0)])) + '</div>';
   } });
   L.A.consent = (ph, ctx) => {
     if (ph.role === 'business') { L.finishBizOnboarding(ph); ph.go('S-06'); }
@@ -509,7 +519,7 @@
     const typed = (x.f.confirm || '').trim().toUpperCase();
     const ok = typed === 'DELETE' || typed === word;
     x.fix(C.abar({ btn: C.btn(t('Delete my account'), { kind: 'dang', full: 1, act: 'deleteAccount', dis: !ok }) }));
-    return '<div class="pad stack g16" style="padding-top:116px"><h1 class="lt" style="font-size:32px;line-height:34px">' + t('This can\'t be undone') + '</h1><div class="card p stack g8"><span class="sub">• ' + t('Your profile, messages and portfolio are deleted.') + '</span><span class="sub">• ' + t('Completed collab cards are anonymised.') + '</span><span class="sub">• ' + t('Payment records are kept for 6 years, as Spanish tax law requires.') + '</span>' + (x.role === 'business' ? '<span class="sub">• ' + t('Cancel your membership in the App Store separately.') + '</span>' : '') + '</div>' + C.field({ label: t('Type {word} to confirm', { word }), bind: 'confirm', value: x.f.confirm, live: 1, auto: 'off' }) + '</div>';
+    return '<div class="pad stack g16" style="padding-top:116px"><h1 class="lt" style="font-size:32px;line-height:34px">' + t('This can\'t be undone') + '</h1><div class="card p stack g8"><span class="sub">• ' + t('Your profile, messages and portfolio are deleted.') + '</span><span class="sub">• ' + t('Completed collab cards are anonymised.') + '</span><span class="sub">• ' + t('Payment records are kept for 6 years, as Spanish tax law requires.') + '</span>' + (x.role === 'business' ? '<span class="sub">• ' + t('Cancel your subscription in the App Store separately.') + '</span>' : '') + '</div>' + C.field({ label: t('Type {word} to confirm', { word }), bind: 'confirm', value: x.f.confirm, live: 1, auto: 'off' }) + '</div>';
   } });
   L.A.deleteAccount = (ph) => { ph.stack = [{ id: 'S-02', f: {} }]; ph.sheets = []; ph.toast(t('Account deleted')); };
 
@@ -524,13 +534,13 @@
   L.A.reportUser = (ph, arg) => { L.W.reports.push(arg); ph.sheets = []; ph.toast(t('Thanks. Lokaly will review this')); };
   L.A.blockUser = (ph, arg) => { const id = arg.split(':')[1]; L.W.blocked.push(id); ph.sheets = []; ph.toast(t('Blocked')); if (ph.base().id === 'S-10') ph.back(); };
 
-  /* ───────── Stripe PaymentSheet (funding + experience fee) ───────── */
+  /* ───────── Stripe PaymentSheet (funding a collab) ───────── */
   const paySheet = (x, amount, label, purpose, arg) => {
     const st = x.ph.payState || 'idle';
     const card = L.W.bizMe.cards.find((c) => c.def) || L.W.bizMe.cards[0];
     if (st === '3ds') return '<div class="grab"></div><div class="stack g16" style="padding:6px 0 0"><div class="hrow between"><b>' + t('Secure checkout') + '</b><span class="meta">Banco Sabadell</span></div><h2 class="h2" style="font-size:22px">' + t('Confirm it\'s you') + '</h2><p class="sub" style="margin:0">' + t('Your bank needs you to approve {amt} to Lokaly in your banking app.', { amt: L.eur(amount, 2) }) + '</p>' + C.btn(t('I\'ve approved it'), { kind: 'dark', full: 1, act: 'pay3ds', arg: purpose + '|' + arg }) + C.btn(t('Cancel'), { kind: 'ghost', full: 1, act: 'payCancel' }) + '</div>';
     return C.sheetHead(label) +
-      '<div class="stack g16"><div class="card line p stack g4"><span class="meta">' + (purpose === 'fee' ? t('Booking fee for a real-world service') : t('Held by Stripe until you approve, or 72h after the post is submitted')) + '</span><span class="num" style="font-size:40px;letter-spacing:-0.04em">' + L.eur(amount, 2) + '</span></div>' +
+      '<div class="stack g16"><div class="card line p stack g4"><span class="meta">' + t('Held by Stripe until you approve, or 72h after the post is submitted') + '</span><span class="num" style="font-size:40px;letter-spacing:-0.04em">' + L.eur(amount, 2) + '</span></div>' +
       (st === 'declined' ? C.banner('bad', 'alert', t('<b>Your card was declined.</b><br>Try again or use a different card.')) : '') +
       // 'Pay' next to the Apple logo is the Apple Pay button mark: it stays as-is in every language.
       C.btn('Pay', { kind: 'apple', full: 1, icon: I.apple(20), act: 'payNow', arg: purpose + '|' + arg + '|apple', busy: st === 'processing', busyLabel: t('Processing…') }) +
@@ -554,13 +564,12 @@
     });
   };
   L.A.pay3ds = (ph, arg) => { const [purpose, id] = arg.split('|'); ph.payState = 'processing'; ph.later(700, () => { ph.payState = 'idle'; L.paid(ph, purpose, id); }); };
-  L.paid = (ph, purpose, id) => { ph.sheets = []; if (purpose === 'fund') L.fundCollab(ph, id); else L.publishDraft(ph, true); };
+  L.paid = (ph, purpose, id) => { ph.sheets = []; L.fundCollab(ph, id); };
 
   /* ───────── App Store purchase sheet (RevenueCat) ───────── */
   S('IAP', { name: 'App Store purchase', sheet: true, render: (x) => {
-    const [who, plan] = x.arg.split(':');
-    // Product names (Creator Plus, Lokaly Minimum/Premium/Exclusive) stay as-is.
-    const info = who === 'plus' ? { name: 'Creator Plus', price: '€X.XX' } : { name: 'Lokaly ' + plan.charAt(0).toUpperCase() + plan.slice(1), price: L.eur(L.PLANS[plan].price, 2) };
+    // One product in v2: the business subscription. Its name stays as-is.
+    const info = { name: 'Lokaly', price: L.eur(L.SUB_PRICE, 2) };
     const st = x.ph.iapState;
     return '<div class="grab"></div><div class="stack g16"><div class="hrow between"><b style="font-size:17px">App Store</b>' + C.gbtn('close', { act: 'iapCancel', aria: t('Cancel purchase') }) + '</div>' +
       '<div class="hrow g12"><span class="logo" style="width:56px;height:56px;border-radius:14px;background:#17181B;color:#D9DCE1;font-size:28px">L</span><span class="stack"><b>' + esc(info.name) + '</b><span class="meta">' + t('Lokaly · Subscription') + '</span></span></div>' +
@@ -568,7 +577,6 @@
       (st === 'failed' ? C.banner('bad', 'alert', t('Purchase couldn\'t be completed. You weren\'t charged.')) : '') +
       C.btn(t('Subscribe'), { kind: 'dark', full: 1, act: 'iapBuy', arg: x.arg, busy: st === 'processing', busyLabel: t('Confirming…') }) + '<p class="meta center" style="margin:0">' + t('Double-click the side button to confirm on device.') + '</p></div>';
   } });
-  L.PLANS = { minimum: { price: 59.99, unlocks: 10 }, premium: { price: 99.99, unlocks: 30 }, exclusive: { price: 249.99, unlocks: 100 } };
   L.A.iapCancel = (ph) => { ph.iapState = null; ph.sheets.pop(); ph.toast(t('Purchase cancelled')); };
   L.A.iapBuy = (ph, arg) => {
     ph.iapState = 'processing';
@@ -577,18 +585,15 @@
       if (sc === 'fail') { ph.iapState = 'failed'; return; }
       ph.iapState = null; ph.sheets = [];
       if (sc === 'cancel') { ph.toast(t('Purchase cancelled')); return; }
-      const [who, plan] = arg.split(':');
-      if (sc === 'pending') { if (who === 'biz') L.W.bizMe.pending = plan; else L.W.crMe.pending = true; ph.toast(t('Waiting for approval (Ask to Buy)')); ph.go(who === 'biz' ? 'B-32' : 'C-23'); return; }
-      if (who === 'biz') { L.W.bizMe.membership = { plan, unlocks: L.PLANS[plan].unlocks, used: 0, renews: L.W.now + 30 * L.D }; L.W.bizMe.pending = null; ph.go('B-33'); }
-      else { L.W.crMe.plus = { renews: L.W.now + 30 * L.D }; L.myCr().plus = true; ph.go('C-22'); }
+      if (sc === 'pending') { L.W.bizMe.pending = true; ph.toast(t('Waiting for approval (Ask to Buy)')); return; }
+      L.W.bizMe.sub = { renews: L.W.now + 30 * L.D }; L.W.bizMe.pending = false;
+      ph.go('B-38', { replace: ph.base().id === 'B-37' });
     });
   };
   L.A.restore = (ph, who) => {
     ph.toast(t('Checking the App Store…'));
     ph.later(700, () => {
-      if (who === 'biz' && L.W.bizMe.membership) ph.toast(t('Membership restored'));
-      else if (who === 'plus' && L.W.crMe.plus) ph.toast(t('Creator Plus restored'));
-      else ph.toast(t('No purchases to restore'));
+      ph.toast(L.W.bizMe.sub ? t('Subscription restored') : t('No purchases to restore'));
     });
   };
 })();
