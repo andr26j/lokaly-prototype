@@ -22,7 +22,7 @@
     const action = mine.filter((c) => ['applied', 'awaiting', 'submitted'].includes(c.status) || (c.status === 'active' && !c.visitDate));
     const camps = L.W.campaigns.filter((k) => k.bizId === b.id && k.status === 'active');
     const me = L.W.bizMe, left = Math.max(0, L.FREE_CAMPAIGNS - me.freeUsed);
-    let h = '<div class="pad stack g20" style="padding-top:58px"><div class="hrow"><span class="serif grow" style="font-size:26px;line-height:1">Lokaly</span><span class="meta num">' + L.date(L.W.now) + '</span>' + C.bell('business') + '</div>' +
+    let h = '<div class="pad stack g20" style="padding-top:58px"><div class="hrow"><span class="serif grow" style="font-size:26px;line-height:1">Clasp</span><span class="meta num">' + L.date(L.W.now) + '</span>' + C.bell('business') + '</div>' +
       '<div class="stack g4"><span style="font-size:17px;color:var(--ink3)">' + t(new Date(L.W.now).getHours() < 12 ? 'Good morning,' : 'Good afternoon,') + '</span><h1 class="lt xl">' + esc(b.name || t('Your business')) + '.</h1><span class="sub">' + (camps.length ? (camps.length > 1 ? t('{n} live campaigns on the coast.', { n: camps.length }) : t('1 live campaign on the coast.')) : t('Post your first campaign to meet local creators.')) + '</span></div></div>';
     h += '<div style="position:relative;height:260px;margin-top:-4px">' + (b.cover ? '<div class="ph mist mist-wide" role="img" aria-label="' + esc(b.name) + '" style="position:absolute;left:80px;right:-30px;top:0;height:290px;background-image:url(' + b.cover + ')"></div>' : '') + '<div aria-hidden="true" style="position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(rgba(245,246,244,0),var(--ground) 85%)"></div>' +
       '<button type="button" data-go="B-28" style="position:absolute;left:12px;top:40px;padding:8px 12px;border-radius:30px;background:rgba(245,246,244,.86);box-shadow:0 0 20px 12px rgba(245,246,244,.86);text-align:left" class="stack num"><span class="meta" style="color:var(--ink2)">' + t('Held in collabs') + '</span><span style="font-size:24px;letter-spacing:-0.03em"' + L.tk('b:held', held, 'num', 'eur') + '>' + L.eur(held) + '</span><span class="meta" style="color:var(--ink2)">' + t('Released on approval or after 72h') + '</span></button>' +
@@ -39,7 +39,7 @@
       (camps.length ? '<div class="mini-h">' + camps.map((k) => '<button type="button" data-go="B-22:' + k.id + '" class="stack g8" style="width:220px;flex-shrink:0;text-align:left">' + C.ph(k.cover, 'height:130px;border-radius:20px', k.title) + '<b style="font-size:15px">' + esc(k.title) + '</b><span class="meta">' + (L.slotsLeft(k) <= 0 ? t('Creator accepted') : t('{n} applicants · open', { n: L.W.collabs.filter((c) => c.campaignId === k.id && c.status === 'applied').length })) + '</span></button>').join('') + '</div>'
         : C.empty({ icon: 'plus', title: t('No live campaigns'), body: t('Paid or Experience. Takes about four minutes.'), cta: C.btn(t('Create campaign'), { kind: 'dark', sm: 1, tab: 'B-14' }) })) + '</div>';
     // Subscription card: subscribed → renewal; free tier → how many free campaigns are left and what the plan adds.
-    h += me.sub ? '<button type="button" class="card p hrow" data-go="B-37" style="width:100%;text-align:left"><span class="ico" style="background:#17181B;color:#D9DCE1">' + I('spark', 18, 2) + '</span><span class="grow stack"><b>' + t('Lokaly subscription') + '</b><span class="meta">' + t('{price}/mo · renews {date}', { price: L.eur(L.SUB_PRICE, 2), date: L.dshort(me.sub.renews) }) + '</span></span>' + I('chev', 16, 2) + '</button>'
+    h += me.sub ? '<button type="button" class="card p hrow" data-go="B-37" style="width:100%;text-align:left"><span class="ico" style="background:#17181B;color:#D9DCE1">' + I('spark', 18, 2) + '</span><span class="grow stack"><b>' + t('Clasp subscription') + '</b><span class="meta">' + t('{price}/mo · renews {date}', { price: L.eur(L.SUB_PRICE, 2), date: L.dshort(me.sub.renews) }) + '</span></span>' + I('chev', 16, 2) + '</button>'
       : '<button type="button" data-go="B-37" class="hrow" style="width:100%;text-align:left;background:#17181B;color:#F4F4F2;border-radius:24px;padding:18px"><span class="grow stack g4"><span class="caps" style="color:#D9DCE1;font-size:10px">' + t('Free plan') + '</span><b style="font-size:16px">' + (left === 1 ? t('1 free campaign left') : left ? t('{n} free campaigns left', { n: left }) : t('Both free campaigns used')) + '</b><span style="font-size:13px;color:#A3A6AC">' + t('Then {price}/mo to keep posting, browsing and inviting', { price: L.eur(L.SUB_PRICE, 2) }) + '</span></span>' + I('chev', 18, 2) + '</button>';
     return h + '</div>';
   } });
@@ -71,7 +71,7 @@
     const o = ph.ob, b = L.myBiz();
     Object.assign(b, { name: o.name || t('My business'), category: o.category || 'Restaurant', town: o.town || 'Marbella', address: o.address || '', owner: '' });
     b.meter = { logo: false, cover: false, desc: false, address: !!(o.address || '').trim() };
-    L.email('E-01', b.name, 'Your Lokaly sign-in code', {});
+    L.email('E-01', b.name, 'Your Clasp sign-in code', {});
   };
 
   /* ───────── B-04 Profile checklist ───────── */
@@ -84,7 +84,7 @@
   S('B-04', { name: 'Finish your profile', render: (x) => {
     const pct = L.bizMeter();
     x.fix(C.abar({ btn: C.btn(t('Continue'), { kind: 'dark', full: 1, act: 'profileDone', dis: pct < 100 }) }));
-    return '<div class="pad stack g20" style="padding-top:110px"><div class="stack g6"><span class="meta">' + t('Last step') + '</span><h1 class="lt">' + t('Finish your profile') + '</h1><p class="sub" style="margin:0">' + t('Creators see this before they apply. Complete it to enter Lokaly. You\'re at {pct}%.', { pct }) + '</p></div>' + C.meter(pct) + bizChecklist(x) + '</div>';
+    return '<div class="pad stack g20" style="padding-top:110px"><div class="stack g6"><span class="meta">' + t('Last step') + '</span><h1 class="lt">' + t('Finish your profile') + '</h1><p class="sub" style="margin:0">' + t('Creators see this before they apply. Complete it to enter Clasp. You\'re at {pct}%.', { pct }) + '</p></div>' + C.meter(pct) + bizChecklist(x) + '</div>';
   } });
   L.A.quickAdd = (ph, k) => {
     const b = L.myBiz(); b.meter[k] = true;
@@ -156,7 +156,7 @@
     if (!own) x.fix('<div class="topbar">' + C.gbtn('back', { back: 1, aria: t('Back'), clear: 1 }) + '<span class="grow"></span>' + C.gbtn('more', { go: 'S-22:cr:' + cr.id, aria: t('Report or block'), clear: 1 }) + '</div>');
     let h = '<div class="hero" style="height:' + (own ? 300 : 400) + 'px">' + C.ph(cr.photo || L.img('coast'), 'background-position:center 22%', cr.first) + '</div>' +
       '<div class="pad stack g20" style="margin-top:-40px;position:relative">' +
-      '<div class="stack g8"><div class="hrow wrap" style="gap:8px">' + C.badges(cr) + '</div><h1 class="lt xl">' + esc(cr.first || t('You')) + '</h1><span class="sub">' + esc(NICHE(cr)) + ' · ' + esc(t(cr.town)) + ' · ' + t('On Lokaly since {date}', { date: esc(cr.joined) }) + '</span>' + (cr.bio ? '<p style="margin:4px 0 0;font-size:15px;line-height:22px">' + esc(cr.bio) + '</p>' : '') + '</div>';
+      '<div class="stack g8"><div class="hrow wrap" style="gap:8px">' + C.badges(cr) + '</div><h1 class="lt xl">' + esc(cr.first || t('You')) + '</h1><span class="sub">' + esc(NICHE(cr)) + ' · ' + esc(t(cr.town)) + ' · ' + t('On Clasp since {date}', { date: esc(cr.joined) }) + '</span>' + (cr.bio ? '<p style="margin:4px 0 0;font-size:15px;line-height:22px">' + esc(cr.bio) + '</p>' : '') + '</div>';
     const statTiles = [];
     if (ig.connected) statTiles.push(C.tile({ tone: 'mint', label: 'Instagram', value: L.k(ig.followers), sub: t('followers · verified'), foot: t('{pct} engagement', { pct: PCT(ig.eng) }), foot2: t('30 days') }));
     if (tt.connected) statTiles.push(C.tile({ tone: 'sky', label: 'TikTok', value: L.k(tt.followers), sub: t('followers · verified'), foot: t('{pct} engagement', { pct: PCT(tt.eng) }), foot2: t('30 days') }));
@@ -175,7 +175,7 @@
     // portfolio
     h += '<div class="stack g12"><h2 class="h2">' + t('Portfolio') + '</h2>' + (cr.portfolio.length ? '<div class="thumbs" style="grid-template-columns:repeat(3,1fr)">' + cr.portfolio.map((p) => '<button type="button" class="ph" data-go="S-11:view:' + p + '" aria-label="' + t('Open portfolio photo') + '" style="background-image:url(' + p + ')"></button>').join('') + '</div>' : '<div class="card p sub">' + t(own ? 'Add 3 or more photos so businesses can see your style.' : 'No portfolio yet.') + '</div>') + '</div>';
     // collabs
-    h += '<div class="stack g12"><h2 class="h2">' + t('Collabs on Lokaly') + '</h2>' + (done.length ? '<div class="mini-h">' + done.map(C.xcard).join('') + '</div>' : '<div class="card p hrow"><span class="ico sand" style="background:var(--tint);color:var(--detail)">' + I('spark', 18, 2) + '</span><span class="stack"><b>' + t('New on Lokaly') + '</b><span class="meta">' + t('No completed collabs yet') + '</span></span></div>') + '</div>';
+    h += '<div class="stack g12"><h2 class="h2">' + t('Collabs on Clasp') + '</h2>' + (done.length ? '<div class="mini-h">' + done.map(C.xcard).join('') + '</div>' : '<div class="card p hrow"><span class="ico sand" style="background:var(--tint);color:var(--detail)">' + I('spark', 18, 2) + '</span><span class="stack"><b>' + t('New on Clasp') + '</b><span class="meta">' + t('No completed collabs yet') + '</span></span></div>') + '</div>';
     return h + '</div>';
   };
   S('B-08', { name: 'Creator profile', render: (x) => {
@@ -195,10 +195,10 @@
      [Assumption] The Flows comments delete the unlock-era B-11/B-32/B-33; the 2026-10-26 call keeps one subscription,
      so this single-plan paywall replaces them. Free tier: post 2 campaigns. Subscribed: post more, browse and invite. */
   const perk = (icon, title, s) => '<div class="perk"><span class="pk">' + I(icon, 18, 1.8) + '</span><span><b>' + title + '</b><span>' + s + '</span></span></div>';
-  const subPerks = () => '<div class="stack g16">' + perk('plus', t('Unlimited campaigns'), t('Post as many as you like, one creator each.')) + perk('users', t('Browse and invite every creator'), t('Discover, filters and invites, across the coast.')) + perk('euro', t('No Lokaly fees on collabs'), t('You pay the creator\'s rate. Receipts show IVA only.')) + '</div>';
+  const subPerks = () => '<div class="stack g16">' + perk('plus', t('Unlimited campaigns'), t('Post as many as you like, one creator each.')) + perk('users', t('Browse and invite every creator'), t('Discover, filters and invites, across the coast.')) + perk('euro', t('No Clasp fees on collabs'), t('You pay the creator\'s rate. Receipts show IVA only.')) + '</div>';
   S('B-37', { name: 'Subscription', noir: true, render: (x) => {
     const me = L.W.bizMe, sub = me.sub, used = Math.min(me.freeUsed, L.FREE_CAMPAIGNS);
-    x.fix('<div class="topbar">' + C.gbtn('close', { act: 'subClose', aria: t('Close') }) + '<span class="grow"></span><span class="caps" style="color:var(--n-mark);letter-spacing:.28em;font-size:11px">' + t('Lokaly subscription') + '</span></div>');
+    x.fix('<div class="topbar">' + C.gbtn('close', { act: 'subClose', aria: t('Close') }) + '<span class="grow"></span><span class="caps" style="color:var(--n-mark);letter-spacing:.28em;font-size:11px">' + t('Clasp subscription') + '</span></div>');
     const price = L.eur(L.SUB_PRICE, 2);
     x.fix(C.abar({ btn: sub ? C.btn(t('Manage in App Store'), { kind: 'white', full: 1, act: 'manageStore' }) : C.btn(t('Subscribe · {price}/mo', { price }), { kind: 'white', full: 1, go: 'IAP:biz:sub', dis: !!me.pending }) }));
     const meter = '<div class="stack g8"><span class="hrow between"><span class="caps" style="color:var(--n-muted);font-size:10px">' + t('Free campaigns') + '</span><span class="num" style="color:var(--n-text);font-size:13px">' + t('{n} of {total} used', { n: used, total: L.FREE_CAMPAIGNS }) + '</span></span><span class="hrow" style="gap:6px">' + Array.from({ length: L.FREE_CAMPAIGNS }, (_, i) => '<i style="flex:1;height:4px;border-radius:2px;background:' + (i < used ? 'var(--n-mark)' : 'var(--n-line)') + '"></i>').join('') + '</span></div>';
@@ -335,7 +335,7 @@
     return '<div class="pad stack g20" style="padding-top:110px">' + head + C.field({ label: t('What should creators capture?'), bind: 'd.brief', value: d.brief, textarea: 1, ph: t('The mood, the moment, what must be in shot…'), err: err(d, 2, 'brief'), help: t('Write it like you\'d brief a friend. Spanish runs about 30% longer, so keep it tight.') }) +
       '<div class="field"><span>' + t('Deliverables') + '</span>' + rows + '<button type="button" class="btn sec sm" data-act="delivAdd" style="align-self:flex-start">' + I('plus', 16, 2) + t('Add deliverable') + '</button></div>' +
       C.field({ label: t('Must include'), bind: 'd.mustInclude', value: d.mustInclude, ph: t('@yourhandle · #YourHashtag') }) + C.field({ label: t('Please avoid (optional)'), bind: 'd.donts', value: d.donts, ph: t('e.g. No other brands in shot') }) +
-      C.banner('grey', 'doc', t('You may repost delivered content on your own channels with credit for 12 months.') + '<br>' + C.oq(t('Clause pending Lokaly\'s terms.'))) + '</div>';
+      C.banner('grey', 'doc', t('You may repost delivered content on your own channels with credit for 12 months.') + '<br>' + C.oq(t('Clause pending Clasp\'s terms.'))) + '</div>';
   } });
   L.A.delivFix = (ph, bind) => { const v = ph.draft.deliverables[+bind.split('.')[2]]; const ok = FORMATS[v.platform] || FORMATS.Instagram; if (!ok.includes(v.format)) v.format = ok[0]; };
   L.A.delivAdd = (ph) => ph.draft.deliverables.push({ platform: 'Instagram', format: 'Stories', count: 3 });
@@ -348,7 +348,7 @@
     if (d.type === 'paid') {
       const r = +d.rate || 0;
       money = C.field({ label: t('Creator rate'), bind: 'd.rate', value: d.rate, pre: '€', type: 'number', mode: 'decimal', live: 1, err: err(d, 3, 'rate'), ph: '200' }) +
-        '<div class="card p stack g8"><b>' + t('What you pay') + '</b>' + C.money([[t('Creator rate'), L.eur(r, 2)], [t('Of which IVA 21%'), L.eur(L.iva(r), 2)], [t('You pay'), L.eur(r, 2), 1]]) + '<span class="meta">' + t('No Lokaly fees. Charged only when you accept the creator. Held by Stripe until you approve, or 72h after the post is submitted.') + '</span></div>';
+        '<div class="card p stack g8"><b>' + t('What you pay') + '</b>' + C.money([[t('Creator rate'), L.eur(r, 2)], [t('Of which IVA 21%'), L.eur(L.iva(r), 2)], [t('You pay'), L.eur(r, 2), 1]]) + '<span class="meta">' + t('No Clasp fees. Charged only when you accept the creator. Held by Stripe until you approve, or 72h after the post is submitted.') + '</span></div>';
     } else {
       money = C.field({ label: t('What creators get'), bind: 'd.offer', value: d.offer, ph: t('e.g. Dinner for two with wine'), err: err(d, 3, 'offer') }) + C.field({ label: t('Estimated value'), bind: 'd.value', value: d.value, pre: '€', type: 'number', mode: 'decimal', err: err(d, 3, 'value'), ph: '120', help: t('Helps creators judge the offer. Not charged.') }) +
         C.banner('info', 'gift', t('No money is held for Experience collabs, and there\'s no fee to publish.'));
@@ -400,7 +400,7 @@
     const k = L.camp(x.arg);
     x.fix('<div class="topbar">' + C.gbtn('close', { tab: 'B-00', aria: t('Close') }) + '</div>');
     const me = L.W.bizMe;
-    return C.success({ title: t('It\'s live.'), sub: t('{title} is on Lokaly. Creators in {town} can apply now.', { title: esc(k.title), town: esc(t(k.town)) }),
+    return C.success({ title: t('It\'s live.'), sub: t('{title} is on Clasp. Creators in {town} can apply now.', { title: esc(k.title), town: esc(t(k.town)) }),
       body: '<div style="pointer-events:none">' + C.campaignCard(k, { go: '' }) + '</div>' +
         (me.sub ? '' : C.banner('grey', 'spark', (L.needsSub() ? t('Both free campaigns used. Subscribe to post more, browse and invite.') : t('{n} of {total} free campaigns used. Browse and invite creators while you have one left.', { n: Math.min(me.freeUsed, L.FREE_CAMPAIGNS), total: L.FREE_CAMPAIGNS })))) +
         '<div class="stack g10">' + C.btn(t('Invite creators'), { kind: 'dark', full: 1, act: 'inviteFromPublished', arg: k.id }) + C.btn(t('View campaign'), { kind: 'sec', full: 1, go: 'B-22:' + k.id }) + C.btn(t('Done'), { kind: 'ghost', full: 1, tab: 'B-00' }) + '</div>' });
@@ -477,7 +477,7 @@
     if (full) h += C.banner('bad', 'alert', t('This campaign already has its creator. Post another campaign to work with {name}.', { name: esc(cr.first) }));
     if (col.pitch || col.note) h += '<div class="card p stack g6"><span class="meta">' + (col.pitch ? t('{name}\'s pitch', { name: cr.first }) : t('Your invite note')) + '</span><p style="margin:0;font-size:16px;line-height:23px">' + t('"{q}"', { q: esc(col.pitch || col.note) }) + '</p></div>';
     h += '<div class="card p stack g10"><h2 class="h2">' + esc(k.title) + '</h2><div class="chips wrap">' + k.deliverables.map((d) => C.pill(DLV(d), 'sand')).join('') + '</div><span class="meta">' + t('Visit window {from}–{to} · agree the exact time in chat', { from: L.dshort(k.visitFrom), to: L.dshort(k.visitTo) }) + '</span></div>';
-    if (paid) h += '<div class="card p stack g10"><div class="hrow between"><h2 class="h2">' + t('Accept at the posted rate') + '</h2></div>' + C.money([[t('Creator rate'), L.eur(k.rate, 2)], [t('Of which IVA 21%'), L.eur(L.iva(k.rate), 2)], [t('Held today'), L.eur(L.payB(k.rate), 2), 1]]) + '<span class="meta">' + t('No Lokaly fees. Held by Stripe and released to {name}\'s Lokaly wallet when you approve the post, or 72h after it\'s submitted. Cancel before submission for a refund minus non-refundable charges.', { name: esc(cr.first) }) + '</span></div>';
+    if (paid) h += '<div class="card p stack g10"><div class="hrow between"><h2 class="h2">' + t('Accept at the posted rate') + '</h2></div>' + C.money([[t('Creator rate'), L.eur(k.rate, 2)], [t('Of which IVA 21%'), L.eur(L.iva(k.rate), 2)], [t('Held today'), L.eur(L.payB(k.rate), 2), 1]]) + '<span class="meta">' + t('No Clasp fees. Held by Stripe and released to {name}\'s Clasp wallet when you approve the post, or 72h after it\'s submitted. Cancel before submission for a refund minus non-refundable charges.', { name: esc(cr.first) }) + '</span></div>';
     else h += C.banner('info', 'gift', t('Experience collab: nothing is charged. {name} gets {offer}.', { name: esc(cr.first), offer: esc(k.offer) }));
     h += '</div>';
     if (['applied', 'awaiting'].includes(col.status)) x.fix(C.abar({ btn: (col.status === 'applied' ? C.btn(t('Decline'), { kind: 'sec', act: 'declineApp', arg: col.id }) : '') + C.btn(paid ? t('Accept & fund {amt}', { amt: L.eur(L.payB(k.rate)) }) : t('Accept'), { kind: paid ? 'pri' : 'dark', act: 'acceptApp', arg: col.id, dis: full, style: 'flex:1' }) }));
@@ -513,14 +513,14 @@
     x.fix(C.top({ title: t('Review {name}\'s post', { name: cr.first }), solid: 1 }));
     const checks = x.f.chk || {};
     let h = '<div class="pad stack g20" style="padding-top:116px">';
-    if (col.status !== 'submitted') h += C.banner(col.status === 'disputed' ? 'bad' : 'ok', col.status === 'disputed' ? 'alert' : 'check', t(col.status === 'disputed' ? 'You reported a problem. Lokaly is reviewing.' : col.releaseReason === 'auto_released' ? 'Auto-released after 72 hours. This is read-only.' : 'Approved. This is read-only.'));
+    if (col.status !== 'submitted') h += C.banner(col.status === 'disputed' ? 'bad' : 'ok', col.status === 'disputed' ? 'alert' : 'check', t(col.status === 'disputed' ? 'You reported a problem. Clasp is reviewing.' : col.releaseReason === 'auto_released' ? 'Auto-released after 72 hours. This is read-only.' : 'Approved. This is read-only.'));
     else h += '<div class="tile lilac wide" style="cursor:default"><span class="tl">' + t('Review window') + '</span><span class="tv">' + t('{h}<small>h left</small>', { h: L.hoursLeft(col) }) + '</span><span class="ts">' + (paid ? t('Then {amt} releases to {name} automatically', { amt: L.eur(L.netC(k.rate)), name: esc(cr.first) }) : t('Then it completes automatically')) + '</span></div>';
     h += '<button type="button" class="card p row" data-act="openUrl" style="padding:14px 16px">' + '<span class="ico grey">' + I('insta', 18, 2) + '</span><span class="rt"><b class="ell">' + esc(col.submission.url.replace('https://www.', '')) + '</b><span>' + t('Open the live post') + '</span></span>' + I('ext', 16, 2) + '</button>';
     h += '<div class="stack g10"><h2 class="h2">' + t('Screenshots') + '</h2><div class="mini-h">' + col.submission.shots.map((s) => '<button type="button" class="ph" data-go="S-11:view:' + s + '" aria-label="' + t('Open screenshot') + '" style="width:200px;height:260px;border-radius:20px;flex-shrink:0;background-image:url(' + s + ')"></button>').join('') + '</div></div>';
     h += '<div class="stack g10"><h2 class="h2">' + t('Check the brief') + '</h2><div class="list">' + k.deliverables.map((d, i) => '<button type="button" class="row" role="checkbox" aria-checked="' + !!checks[i] + '" data-toggle="chk.' + i + '"><span class="check' + (checks[i] ? ' on' : '') + '">' + (checks[i] ? I('check', 15, 3) : '') + '</span><span class="rt"><b>' + esc(DLV(d)) + '</b></span></button>').join('') + '<button type="button" class="row" role="checkbox" aria-checked="' + !!checks.m + '" data-toggle="chk.m"><span class="check' + (checks.m ? ' on' : '') + '">' + (checks.m ? I('check', 15, 3) : '') + '</span><span class="rt"><b>' + t('Includes {tag}', { tag: esc(k.mustInclude) }) + '</b></span></button></div></div>';
     if (col.status === 'submitted') h += C.list([C.row({ icon: 'flag', tone: 'red', title: t('Report a problem'), sub: t('Pauses the timer and freezes funds'), go: 'S-13:' + col.id })]);
     h += '</div>';
-    if (col.status === 'submitted') x.fix(C.abar({ title: paid ? t('{net} to {name}', { net: L.eur(L.netC(k.rate)), name: esc(cr.first) }) : t('Experience'), sub: paid ? t('to {name}\'s Lokaly wallet · no fees', { name: esc(cr.first) }) : t('nothing to pay'), btn: C.btn(t(paid ? 'Approve & release' : 'Mark complete'), { act: 'approve', arg: col.id, kind: paid ? 'pri' : 'dark' }) }));
+    if (col.status === 'submitted') x.fix(C.abar({ title: paid ? t('{net} to {name}', { net: L.eur(L.netC(k.rate)), name: esc(cr.first) }) : t('Experience'), sub: paid ? t('to {name}\'s Clasp wallet · no fees', { name: esc(cr.first) }) : t('nothing to pay'), btn: C.btn(t(paid ? 'Approve & release' : 'Mark complete'), { act: 'approve', arg: col.id, kind: paid ? 'pri' : 'dark' }) }));
     return h;
   } });
   L.A.approve = (ph, id) => { const col = L.col(id); L.release(col, 'approved'); ph.go('S-12:' + id, { replace: 1 }); ph.toast(L.camp(col.campaignId).type === 'paid' ? t('Released to {name}', { name: L.cr(col.creatorId).first }) : t('Marked complete')); };
@@ -549,12 +549,12 @@
   L.A.exportCsv = (ph, role) => {
     let rows;
     if (role === 'business') rows = [['date', 'type', 'description', 'amount_eur', 'stripe_ref']].concat(L.W.txns.filter((t) => t.bizId === L.W.bizMe.id).map((tx) => { const l = L.inLang('en', () => txLabel(tx)); return [new Date(tx.at).toISOString().slice(0, 10), tx.kind, l[0] + ' / ' + l[1], tx.amount.toFixed(2), tx.ref]; }));
-    else rows = [['date', 'type', 'description', 'amount_eur', 'lokaly_fee_eur', 'net_eur', 'status']]
+    else rows = [['date', 'type', 'description', 'amount_eur', 'clasp_fee_eur', 'net_eur', 'status']]
       .concat(L.walletCredits(L.W.crMe.id).map((c) => { const k = L.camp(c.col.campaignId); return [new Date(c.at).toISOString().slice(0, 10), 'credit', L.biz(k.bizId).name + ' / ' + k.title, c.amount.toFixed(2), '0.00', c.amount.toFixed(2), 'in_wallet']; }))
       .concat(L.myWithdrawals().map((w) => [new Date(w.at).toISOString().slice(0, 10), 'withdrawal', L.bankLabel, w.amount.toFixed(2), L.wFee(w.amount).toFixed(2), L.wNet(w.amount).toFixed(2), w.status]));
     const csv = rows.map((r) => r.map((c) => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
     L.lastCsv = csv;
-    try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'lokaly-' + role + '-' + new Date(L.W.now).toISOString().slice(0, 10) + '.csv'; document.body.appendChild(a); a.click(); a.remove(); } catch (_) {}
+    try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'clasp-' + role + '-' + new Date(L.W.now).toISOString().slice(0, 10) + '.csv'; document.body.appendChild(a); a.click(); a.remove(); } catch (_) {}
     ph.toast(t('CSV exported · {n} rows', { n: rows.length - 1 }));
   };
 
@@ -563,7 +563,7 @@
     const tx = L.W.txns.find((y) => y.id === x.arg); const l = txLabel(tx);
     x.fix(C.top({ title: t('Receipt'), solid: 1 }));
     let lines;
-    // v2 receipts: IVA 21% only, no Lokaly fee. A refund keeps every non-refundable charge in one line.
+    // v2 receipts: IVA 21% only, no Clasp fee. A refund keeps every non-refundable charge in one line.
     const k = L.camp(L.col(tx.collabId).campaignId);
     lines = tx.kind === 'refunded' ? [[t('Funded'), L.eur(L.payB(k.rate), 2)], [t('Non-refundable charges'), '−' + L.eur(L.stripeCost(L.payB(k.rate)), 2)], [t('Refunded'), L.eur(tx.amount, 2), 1]] : [[t('Creator rate'), L.eur(k.rate, 2)], [t('Of which IVA 21%'), L.eur(L.iva(k.rate), 2)], [t(tx.kind === 'released' ? 'Released' : 'Held'), L.eur(L.payB(k.rate), 2), 1]];
     return '<div class="pad stack g20" style="padding-top:116px"><div class="stack g6" style="align-items:center;text-align:center"><span class="ico ' + l[2] + '" style="width:56px;height:56px;border-radius:28px">' + I(l[3], 24, 2) + '</span><span class="num" style="font-size:44px;letter-spacing:-0.04em">' + L.eur(tx.amount, 2) + '</span><b>' + esc(l[0]) + '</b><span class="meta">' + esc(l[1]) + ' · ' + L.dt(tx.at) + '</span></div>' +
@@ -579,7 +579,7 @@
     const nifOk = /^[A-HJ-NP-SUVW]-?\d{7}[0-9A-J]$|^\d{8}-?[A-Z]$/i.test((f.nif || '').trim());
     x.fix(C.top({ title: t('Billing details'), solid: 1 }));
     x.fix(C.abar({ btn: C.btn(t('Save'), { kind: 'dark', full: 1, act: 'saveBilling' }) }));
-    return '<div class="pad stack g16" style="padding-top:116px"><p class="sub" style="margin:0">' + t('Shown on your receipts.') + ' ' + C.oq(t('Fields depend on Lokaly\'s DAC7 / invoicing advice.')) + '</p>' + C.field({ label: t('Legal name'), bind: 'legal', value: f.legal, auto: 'organization' }) + C.field({ label: 'CIF / NIF', bind: 'nif', value: f.nif, ph: 'B-12345678', err: f.tried && !nifOk ? t('That doesn\'t look like a Spanish CIF or NIF') : null, help: t('Company CIF (B-12345678) or personal NIF (12345678Z)') }) + C.field({ label: t('Billing address'), bind: 'address', value: f.address, textarea: 1, auto: 'street-address' }) + '</div>';
+    return '<div class="pad stack g16" style="padding-top:116px"><p class="sub" style="margin:0">' + t('Shown on your receipts.') + ' ' + C.oq(t('Fields depend on Clasp\'s DAC7 / invoicing advice.')) + '</p>' + C.field({ label: t('Legal name'), bind: 'legal', value: f.legal, auto: 'organization' }) + C.field({ label: 'CIF / NIF', bind: 'nif', value: f.nif, ph: 'B-12345678', err: f.tried && !nifOk ? t('That doesn\'t look like a Spanish CIF or NIF') : null, help: t('Company CIF (B-12345678) or personal NIF (12345678Z)') }) + C.field({ label: t('Billing address'), bind: 'address', value: f.address, textarea: 1, auto: 'street-address' }) + '</div>';
   } });
   L.A.saveBilling = (ph) => { const f = ph.top().f; const ok = /^[A-HJ-NP-SUVW]-?\d{7}[0-9A-J]$|^\d{8}-?[A-Z]$/i.test((f.nif || '').trim()); if (!ok) { f.tried = 1; return; } L.W.bizMe.billing = { legal: f.legal, nif: f.nif, address: f.address }; ph.back(); ph.toast(t('Billing details saved')); };
 
@@ -588,7 +588,7 @@
     const cards = L.W.bizMe.cards;
     x.fix(C.top({ title: t('Payment methods'), solid: 1 }));
     return '<div class="pad stack g16" style="padding-top:116px">' + (cards.length ? C.list(cards.map((c) => '<div class="row"><span class="visa">VISA</span><span class="rt"><b>•••• ' + c.last4 + '</b><span>' + t(c.def ? 'Expires {exp} · Default' : 'Expires {exp}', { exp: c.exp }) + '</span></span>' + (c.def ? C.pill(t('Default'), 'ok') : C.btn(t('Make default'), { kind: 'ghost', sm: 1, act: 'cardDefault', arg: c.id })) + C.gbtn('trash', { act: 'cardDel', arg: c.id, aria: t('Remove card ending {n}', { n: c.last4 }) }) + '</div>')) : C.empty({ icon: 'card', title: t('No cards saved'), body: t('Add a card to fund collabs in one tap. Apple Pay works too.') })) +
-      C.btn(t('Add card'), { kind: 'sec', full: 1, icon: I('plus', 18, 2), act: 'addCard' }) + '<div class="stripe-badge">' + I('lock', 13, 2) + t('Cards are stored by Stripe, never by Lokaly') + '</div></div>';
+      C.btn(t('Add card'), { kind: 'sec', full: 1, icon: I('plus', 18, 2), act: 'addCard' }) + '<div class="stripe-badge">' + I('lock', 13, 2) + t('Cards are stored by Stripe, never by Clasp') + '</div></div>';
   } });
   L.A.cardDefault = (ph, id) => L.W.bizMe.cards.forEach((c) => (c.def = c.id === id));
   L.A.cardDel = (ph, id) => { L.W.bizMe.cards = L.W.bizMe.cards.filter((c) => c.id !== id); if (L.W.bizMe.cards[0] && !L.W.bizMe.cards.some((c) => c.def)) L.W.bizMe.cards[0].def = true; ph.toast(t('Card removed')); };
@@ -613,7 +613,7 @@
     if (b.web || b.ig) h += C.list([b.web ? C.row({ icon: 'globe', title: esc(b.web), act: 'openUrl', chev: false, right: I('ext', 16, 2) }) : '', b.ig ? C.row({ icon: 'insta', title: esc(b.ig), act: 'openUrl', chev: false, right: I('ext', 16, 2) }) : ''].filter(Boolean));
     if (b.photos && b.photos.length > 1) h += '<div class="mini-h">' + b.photos.map((p) => '<button type="button" class="ph" data-go="S-11:view:' + p + '" aria-label="' + t('Open photo') + '" style="width:220px;height:150px;border-radius:20px;flex-shrink:0;background-image:url(' + p + ')"></button>').join('') + '</div>';
     h += '<div class="stack g12"><h2 class="h2">' + t('Open campaigns') + '</h2>' + (camps.length ? camps.map((k) => C.campaignCard(k, own ? { go: 'B-22:' + k.id } : undefined)).join('') : '<div class="card p sub">' + t('No open campaigns right now.') + '</div>') + '</div>';
-    h += '<div class="stack g12"><h2 class="h2">' + t('Collabs on Lokaly') + '</h2>' + (done.length ? '<div class="mini-h">' + done.map(C.xcard).join('') + '</div>' : '<div class="card p hrow"><span class="ico" style="background:var(--tint);color:var(--detail)">' + I('spark', 18, 2) + '</span><span class="stack"><b>' + t('New on Lokaly') + '</b><span class="meta">' + t('No completed collabs yet') + '</span></span></div>') + '</div>';
+    h += '<div class="stack g12"><h2 class="h2">' + t('Collabs on Clasp') + '</h2>' + (done.length ? '<div class="mini-h">' + done.map(C.xcard).join('') + '</div>' : '<div class="card p hrow"><span class="ico" style="background:var(--tint);color:var(--detail)">' + I('spark', 18, 2) + '</span><span class="stack"><b>' + t('New on Clasp') + '</b><span class="meta">' + t('No completed collabs yet') + '</span></span></div>') + '</div>';
     return h + '</div>';
   };
   L.A.openMaps = (ph) => ph.toast(t('Opens Apple Maps'));

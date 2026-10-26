@@ -21,7 +21,7 @@
     const open = L.W.campaigns.filter((k) => k.status === 'active' && L.slotsLeft(k) > 0);
     const nearby = open.filter((k) => k.km <= 35).length;
     const ig = me.socials.ig;
-    let h = '<div class="pad stack g20" style="padding-top:58px"><div class="hrow"><span class="serif grow" style="font-size:26px;line-height:1">Lokaly</span><span class="meta num">' + L.date(L.W.now) + '</span>' + C.bell('creator') + '</div>' +
+    let h = '<div class="pad stack g20" style="padding-top:58px"><div class="hrow"><span class="serif grow" style="font-size:26px;line-height:1">Clasp</span><span class="meta num">' + L.date(L.W.now) + '</span>' + C.bell('creator') + '</div>' +
       '<div class="stack g4"><span style="font-size:17px;color:var(--ink3)">' + t('Hello,') + '</span><h1 class="lt xl">' + esc(me.first || t('there')) + '.</h1><span class="sub">' + t("Here's your week on the coast.") + '</span></div></div>';
     h += '<div style="position:relative;height:360px;margin-top:-6px">' + (me.photo ? '<div class="ph mist mist-face" role="img" aria-label="' + esc(me.first) + '" style="position:absolute;left:70px;top:0;width:290px;height:400px;background-position:center 18%;background-image:url(' + me.photo + ')"></div>' : '') + '<div aria-hidden="true" style="position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(rgba(245,246,244,0),var(--ground) 85%)"></div>' +
       (ig.connected ? '<span style="position:absolute;left:10px;top:100px;padding:8px 10px;border-radius:30px;background:rgba(245,246,244,.86);box-shadow:0 0 20px 12px rgba(245,246,244,.86)" class="stack num"><span class="meta" style="color:var(--ink2)">' + t('Followers') + '</span><span style="font-size:24px;line-height:26px;letter-spacing:-0.03em">' + L.k(ig.followers) + '</span><span class="meta" style="color:var(--ink2)">' + t('Instagram · verified') + '</span></span>' +
@@ -59,7 +59,7 @@
       '<div class="hrow g16"><button type="button" data-set="o.photo" data-val="' + (o.photo ? '' : L.img('lucia')) + '" aria-label="' + (o.photo ? t('Remove photo') : t('Add profile photo')) + '">' + (o.photo ? C.av(o.photo, 80) : '<span class="upl" style="width:80px;height:80px;min-height:0;border-radius:40px">' + I('camera', 22, 2) + '</span>') + '</button><span class="stack"><b>' + t('Profile photo') + '</b><span class="meta">' + t('A clear face photo gets more invites') + '</span></span></div>' +
       C.field({ label: t('First name'), bind: 'o.first', value: o.first, live: 1, auto: 'given-name' }) +
       C.field({ label: t('Last name'), bind: 'o.last', value: o.last, live: 1, auto: 'family-name', help: t('Private. Never shown to businesses or in notifications.') }) +
-      C.field({ label: t('Lokaly username'), bind: 'o.username', value: o.username, pre: '@', live: 1, auto: 'username', err: taken ? t('That username is taken') : bad ? t('3–24 letters, numbers, dots or underscores') : null, help: t('For signing in and support. Not shown on your profile.') }) +
+      C.field({ label: t('Clasp username'), bind: 'o.username', value: o.username, pre: '@', live: 1, auto: 'username', err: taken ? t('That username is taken') : bad ? t('3–24 letters, numbers, dots or underscores') : null, help: t('For signing in and support. Not shown on your profile.') }) +
       C.banner('info', 'lock', t('Businesses see your <b>first name</b>. Your surname is never shown.')), 'cob2', ok);
   } });
   L.A.cob2 = (ph) => ph.go('C-03');
@@ -98,7 +98,7 @@
     const o = ph.ob, c = L.myCr();
     Object.assign(c, { first: (o.first || 'Creator').trim(), last: (o.last || '').trim(), username: o.username || '', photo: o.photo || null, niches: o.niches || [], town: o.town || 'Marbella', socials: { ig: o.ig || { connected: false }, tt: o.tt || { connected: false }, other: o.other || [] } });
     L.W.crMe.meter = { photo: !!o.photo, bio: false, portfolio: false, social: !!((o.ig && o.ig.connected) || (o.tt && o.tt.connected) || (o.other && o.other.length)) };
-    L.email('E-01', c.first, 'Your Lokaly sign-in code', {}, {});
+    L.email('E-01', c.first, 'Your Clasp sign-in code', {}, {});
     ph.go('S-06');
   };
 
@@ -112,7 +112,7 @@
   S('C-05', { name: 'Finish your profile', render: (x) => {
     const pct = L.crMeter();
     x.fix(C.abar({ btn: C.btn(t('Continue'), { kind: 'dark', full: 1, act: 'profileDone', dis: pct < 100 }) }));
-    return '<div class="pad stack g20" style="padding-top:110px"><div class="stack g6"><span class="meta">' + t('Last step') + '</span><h1 class="lt">' + t('Finish your profile') + '</h1><p class="sub" style="margin:0">' + t('Businesses only see complete profiles. Finish it to enter Lokaly. You\'re at {pct}.', { pct: L.pct(pct) }) + '</p></div>' + C.meter(pct) + crChecklist() + '</div>';
+    return '<div class="pad stack g20" style="padding-top:110px"><div class="stack g6"><span class="meta">' + t('Last step') + '</span><h1 class="lt">' + t('Finish your profile') + '</h1><p class="sub" style="margin:0">' + t('Businesses only see complete profiles. Finish it to enter Clasp. You\'re at {pct}.', { pct: L.pct(pct) }) + '</p></div>' + C.meter(pct) + crChecklist() + '</div>';
   } });
 
   /* ───────── C-06 Discover campaigns ───────── */
@@ -168,7 +168,7 @@
     if (closed && !mine) h += C.banner('grey', 'lock', t('This campaign has closed.'));
     else if (full && !mine) h += C.banner('grey', 'users', t('This campaign already has its creator.'));
     if (mine) h += '<button type="button" class="banner info" data-go="' + (mine.status === 'invited' ? 'C-13:' : 'S-12:') + mine.id + '" style="width:100%;text-align:left">' + I('work', 18, 2) + '<span><b>' + esc(t(L.STATUS[mine.status][0])) + '.</b> ' + esc(C.nextC(mine)) + ' →</span></button>';
-    h += paid ? '<div class="card p stack g8"><div class="hrow between"><span class="meta">' + t('Rate per creator') + '</span>' + C.pill(t('Held by Stripe'), 'peach', 'shield') + '</div><span class="num" style="font-size:40px;letter-spacing:-0.04em;line-height:42px">' + L.eur(k.rate) + '</span><span class="sub">' + t("All {amt} goes to your Lokaly wallet when {biz} approves, or automatically 72h after you submit. Lokaly takes 10% only when you withdraw.", { amt: '<b style="color:var(--ink)">' + L.eur(L.netC(k.rate)) + '</b>', biz: esc(b.name) }) + '</span></div>'
+    h += paid ? '<div class="card p stack g8"><div class="hrow between"><span class="meta">' + t('Rate per creator') + '</span>' + C.pill(t('Held by Stripe'), 'peach', 'shield') + '</div><span class="num" style="font-size:40px;letter-spacing:-0.04em;line-height:42px">' + L.eur(k.rate) + '</span><span class="sub">' + t("All {amt} goes to your Clasp wallet when {biz} approves, or automatically 72h after you submit. Clasp takes 10% only when you withdraw.", { amt: '<b style="color:var(--ink)">' + L.eur(L.netC(k.rate)) + '</b>', biz: esc(b.name) }) + '</span></div>'
       : '<div class="card p stack g8"><span class="meta">' + t('What you get') + '</span><b class="serif" style="font-size:28px;font-weight:400;line-height:30px">' + esc(k.offer) + '</b><span class="sub">' + t('Estimated value {amt}. No money changes hands.', { amt: L.eur(k.value) }) + '</span></div>';
     h += '<div class="stack g10"><h2 class="h2">' + t('The brief') + '</h2><p style="margin:0;font-size:15px;line-height:23px">' + esc(k.brief) + '</p></div>';
     h += '<div class="card p stack g10"><h2 class="h2">' + t('Deliverables') + '</h2>' + k.deliverables.map((d) => '<div class="hrow g10">' + I(d.platform === 'TikTok' ? 'tiktok' : d.platform === 'YouTube' ? 'youtube' : 'insta', 18, 2) + '<span>' + dlv(d) + '</span></div>').join('') + '<span class="meta">' + t('Must include {what}', { what: esc(k.mustInclude) }) + (k.donts ? ' · ' + t('Avoid: {what}', { what: esc(k.donts) }) : '') + '</span></div>';
@@ -290,20 +290,20 @@
     x.fix(C.abar({ btn: C.btn(t('Back to collab'), { kind: 'dark', full: 1, act: 'toCollab', arg: col.id }) }));
     return C.success({ tone: 'lilac', title: t('Submitted.'), sub: t('Nice work. {biz} has been told.', p), body:
       '<div class="tile lilac wide" style="cursor:default;min-height:170px"><span class="tl">' + t('Auto-release') + '</span><span class="tv">' + t('{h}<small>h</small>', { h: '<span data-in="count" data-d="100" data-v="' + L.hoursLeft(col) + '">' + L.hoursLeft(col) + '</span>' }) + '</span><span class="ts">' + (paid ? t('{amt} releases automatically on {when} unless {biz} reports a problem', p) : t('Completes automatically on {when} unless {biz} reports a problem', p)) + '</span></div>' +
-      '<div class="card p stack g10"><b>' + t('What happens next') + '</b><span class="sub">' + t('• {biz} checks your post against the brief.', p) + '</span><span class="sub">' + (paid ? t('• Approved: {amt} goes to your Lokaly wallet.', p) : t('• Approved: the collab card appears on both profiles.')) + '</span><span class="sub">' + t('• A problem: Lokaly reviews it and contacts you.') + '</span></div>' });
+      '<div class="card p stack g10"><b>' + t('What happens next') + '</b><span class="sub">' + t('• {biz} checks your post against the brief.', p) + '</span><span class="sub">' + (paid ? t('• Approved: {amt} goes to your Clasp wallet.', p) : t('• Approved: the collab card appears on both profiles.')) + '</span><span class="sub">' + t('• A problem: Clasp reviews it and contacts you.') + '</span></div>' });
   } });
   L.A.toCollab = (ph, id) => ph.go('S-12:' + id, { replace: 1 });
 
   /* ───────── C-17 Payout account (bank details) ─────────
-     v2: added at the first withdrawal (Stripe-hosted, so Lokaly never sees the ID), saved, and confirmed on every withdrawal. */
+     v2: added at the first withdrawal (Stripe-hosted, so Clasp never sees the ID), saved, and confirmed on every withdrawal. */
   S('C-17', { name: 'Payout account', render: (x) => {
     const st = L.W.crMe.payout;
     x.fix(C.top({ title: t('Payout account'), solid: 1 }));
     const head = { none: ['Add your bank account', 'Withdrawals from your wallet go to your bank. Add it once, at your first withdrawal; we save it and you confirm it every time.', 'grey'], review: ['Stripe is checking your details', 'Usually a few minutes, at most two business days. Your wallet keeps growing meanwhile.', 'lilac'], action: ['Stripe needs one more thing', 'Upload a photo of your DNI or NIE to finish verification. Withdrawals are paused until then.', 'red'], verified: ['Bank account saved', 'Withdrawals land in your bank in 1–3 business days.', 'ok'] }[st];
     const fromWithdraw = x.ph.stack.some((e) => e.id === 'C-27');
     let h = '';
-    if (st === 'verified') h += C.list([C.row({ icon: 'card', title: L.bankLabel, sub: t('CaixaBank · confirmed on every withdrawal'), chev: false }), C.row({ icon: 'user', title: t('Identity verified'), sub: t('NIF and address held by Stripe, not Lokaly'), chev: false }), C.row({ icon: 'ext', title: t('Update details in Stripe'), go: 'KYC' })]);
-    else if (st === 'none') h += '<div class="card p stack g10"><b>' + t("You'll need") + '</b><span class="sub">' + t('• Your DNI, NIE or passport') + '</span><span class="sub">' + t('• Your NIF and home address') + '</span><span class="sub">' + t('• A Spanish or EU bank account (IBAN)') + '</span></div>' + C.banner('grey', 'lock', t('Stripe collects this for tax rules (DAC7). Lokaly never sees your ID.'));
+    if (st === 'verified') h += C.list([C.row({ icon: 'card', title: L.bankLabel, sub: t('CaixaBank · confirmed on every withdrawal'), chev: false }), C.row({ icon: 'user', title: t('Identity verified'), sub: t('NIF and address held by Stripe, not Clasp'), chev: false }), C.row({ icon: 'ext', title: t('Update details in Stripe'), go: 'KYC' })]);
+    else if (st === 'none') h += '<div class="card p stack g10"><b>' + t("You'll need") + '</b><span class="sub">' + t('• Your DNI, NIE or passport') + '</span><span class="sub">' + t('• Your NIF and home address') + '</span><span class="sub">' + t('• A Spanish or EU bank account (IBAN)') + '</span></div>' + C.banner('grey', 'lock', t('Stripe collects this for tax rules (DAC7). Clasp never sees your ID.'));
     h = C.success({ tone: head[2], icon: st === 'verified' ? 'check' : st === 'action' ? 'alert' : st === 'review' ? 'clock' : 'euro', title: t(head[0]), sub: t(head[1]), xl: false, body: h });
     if (st === 'none') x.fix(C.abar({ btn: C.btn(t('Continue to Stripe'), { kind: 'dark', full: 1, go: 'KYC', icon: I('ext', 16, 2) }) }));
     if (st === 'action') x.fix(C.abar({ btn: C.btn(t('Fix in Stripe'), { kind: 'dark', full: 1, go: 'KYC' }) }));
@@ -313,11 +313,11 @@
   } });
   S('KYC', { name: 'Stripe Connect onboarding', sheet: true, full: true, render: (x) => {
     const f = x.f;
-    return '<div class="grab"></div><div class="hrow between" style="margin-bottom:16px"><b style="font-size:18px;color:#635BFF">stripe</b>' + C.gbtn('close', { close: 1, aria: t('Close Stripe') }) + '</div><div class="stack g16"><h2 class="h2" style="font-size:22px">' + t('Verify your details for Lokaly') + '</h2><p class="sub" style="margin:0">' + t("Hosted by Stripe. Lokaly can't see what you enter here.") + '</p>' +
+    return '<div class="grab"></div><div class="hrow between" style="margin-bottom:16px"><b style="font-size:18px;color:#635BFF">stripe</b>' + C.gbtn('close', { close: 1, aria: t('Close Stripe') }) + '</div><div class="stack g16"><h2 class="h2" style="font-size:22px">' + t('Verify your details for Clasp') + '</h2><p class="sub" style="margin:0">' + t("Hosted by Stripe. Clasp can't see what you enter here.") + '</p>' +
       C.field({ label: t('NIF / NIE'), bind: 'nif', value: f.nif === undefined ? 'X1234567L' : f.nif }) + C.field({ label: t('Home address'), bind: 'addr', value: f.addr === undefined ? 'Calle Málaga 3, 29601 Marbella' : f.addr }) + C.field({ label: t('IBAN'), bind: 'iban', value: f.iban === undefined ? 'ES91 2100 0418 4502 0005 4821' : f.iban }) +
       '<button type="button" class="upl" data-toggle="id">' + (f.id ? I('check', 22, 2) + t('DNI photo added') : I('camera', 22, 2) + t('Photo of your ID')) + '</button>' + C.btn(t('Submit to Stripe'), { kind: 'dark', full: 1, act: 'kycSubmit', style: 'background:#635BFF' }) + '<p class="meta center" style="margin:0">' + t('Demo values. Never type real details into a prototype.') + '</p></div>';
   } });
-  L.A.kycSubmit = (ph) => { ph.sheets = []; L.W.crMe.payout = 'review'; ph.toast(t('Back in Lokaly · Stripe is checking')); ph.later(1200, () => { L.W.crMe.payout = L.W.scen.kyc === 'action' && !ph.kycTried ? 'action' : 'verified'; ph.kycTried = true; if (L.W.crMe.payout === 'action') L.email('E-07', L.myCr().first, 'Stripe needs one more document', {}, {}); }); };
+  L.A.kycSubmit = (ph) => { ph.sheets = []; L.W.crMe.payout = 'review'; ph.toast(t('Back in Clasp · Stripe is checking')); ph.later(1200, () => { L.W.crMe.payout = L.W.scen.kyc === 'action' && !ph.kycTried ? 'action' : 'verified'; ph.kycTried = true; if (L.W.crMe.payout === 'action') L.email('E-07', L.myCr().first, 'Stripe needs one more document', {}, {}); }); };
   L.A.kycRefresh = (ph) => { L.W.crMe.payout = L.W.scen.kyc === 'action' && !ph.kycTried ? 'action' : 'verified'; };
 
   /* ───────── C-18 Earnings + wallet ───────── */
@@ -329,7 +329,7 @@
     const out = ws.filter((w) => w.status === 'paid').reduce((s, w) => s + L.wNet(w.amount), 0);
     x.fix(C.top({ title: t('Earnings'), solid: 1, right: C.gbtn('download', { act: 'exportCsv', arg: 'creator', aria: t('Export CSV') }) }));
     let h = '<div class="pad stack g16" style="padding-top:116px">';
-    h += '<div class="card p stack g12" style="background:#17181B;color:#F4F4F2"><span class="caps" style="color:#D9DCE1;font-size:10px">' + t('Wallet') + '</span><span class="num" style="font-size:48px;line-height:50px;letter-spacing:-0.045em"' + L.tk('c:bal', bal, 'num', 'eur') + '>' + L.eur(bal, 2) + '</span><span style="font-size:13px;color:#A3A6AC">' + t('Available to withdraw. Lokaly takes 10% when you withdraw, nothing before.') + '</span>' +
+    h += '<div class="card p stack g12" style="background:#17181B;color:#F4F4F2"><span class="caps" style="color:#D9DCE1;font-size:10px">' + t('Wallet') + '</span><span class="num" style="font-size:48px;line-height:50px;letter-spacing:-0.045em"' + L.tk('c:bal', bal, 'num', 'eur') + '>' + L.eur(bal, 2) + '</span><span style="font-size:13px;color:#A3A6AC">' + t('Available to withdraw. Clasp takes 10% when you withdraw, nothing before.') + '</span>' +
       C.btn(t('Withdraw'), { kind: 'white', full: 1, go: 'C-27', dis: bal < L.MIN_WITHDRAW }) + '</div>';
     h += '<div class="tiles">' + C.tile({ tone: 'peach', label: t('Held'), value: t('<sup>€</sup>{n}', { n: '<span' + L.tk('c:held18', Math.round(held), 'num') + '>' + Math.round(held) + '</span>' }), sub: t('in active collabs'), foot: t('safe with Stripe') }) + C.tile({ tone: 'lilac', label: t('Releasing'), value: t('<sup>€</sup>{n}', { n: Math.round(rel) }), sub: t('in a 72h window'), foot: t('{n} submitted', { n: mine.filter((c) => c.status === 'submitted').length }) }) + C.tile({ tone: 'mint', label: t('Withdrawn@@wallet'), value: t('<sup>€</sup>{n}', { n: '<span' + L.tk('c:out', Math.round(out), 'num') + '>' + Math.round(out) + '</span>' }), sub: t('all time, after fees'), foot: L.pl(ws.length, 'withdrawal'), wide: true }) + '</div>';
     h += C.list([C.row({ icon: 'card', title: t('Payout account'), right: L.W.crMe.payout === 'verified' ? L.bankLabel : payoutLabel(L.W.crMe.payout), go: 'C-17' })]);
@@ -349,7 +349,7 @@
 
   /* ───────── C-27 Withdraw ─────────
      The saved bank account is confirmed on every withdrawal; the 10% fee (IVA 21% included) comes off the amount. */
-  const wLines = (amt) => [[t('Withdraw from wallet'), L.eur(amt, 2)], [t('Lokaly fee 10%'), '−' + L.eur(L.wFee(amt), 2)], [t('Of which IVA 21%'), L.eur(L.iva(L.wFee(amt)), 2)], [t('You receive'), L.eur(L.wNet(amt), 2), 1]];
+  const wLines = (amt) => [[t('Withdraw from wallet'), L.eur(amt, 2)], [t('Clasp fee 10%'), '−' + L.eur(L.wFee(amt), 2)], [t('Of which IVA 21%'), L.eur(L.iva(L.wFee(amt)), 2)], [t('You receive'), L.eur(L.wNet(amt), 2), 1]];
   S('C-27', { name: 'Withdraw', render: (x) => {
     const bal = L.walletBalance(); const f = x.f; const st = L.W.crMe.payout;
     if (f.amt === undefined) f.amt = String(bal);
@@ -450,7 +450,7 @@
       return '<div class="card p hrow g12"><span class="ico grey">' + I(icon, 18, 2) + '</span><span class="grow stack"><b>' + name + '</b><span class="meta">' + t('Not connected') + '</span></span>' + C.btn(x.ph.busy === k ? '' : t('Connect'), { kind: 'dark', sm: 1, act: 'connect2', arg: k, busy: x.ph.busy === k, busyLabel: '…' }) + '</div>';
     };
     return '<div class="pad stack g16" style="padding-top:116px">' + (x.f.confirm ? '<div class="warn" role="alert"><b>' + t('Disconnect {platform}?', { platform: x.f.confirm === 'ig' ? 'Instagram' : 'TikTok' }) + '</b><span>' + ((x.f.confirm === 'ig' ? s.tt.connected : s.ig.connected) ? t('Its stats disappear from your profile.') : t("You'll lose your Verified badge and rank lower in Discover.")) + '</span><div class="hrow">' + C.btn(t('Keep it'), { kind: 'sec', sm: 1, set: 'confirm', val: '' }) + C.btn(t('Disconnect'), { kind: 'dang', sm: 1, act: 'disconnectYes', arg: x.f.confirm }) + '</div></div>' : '') +
-      row('ig', 'Instagram', 'insta') + row('tt', 'TikTok', 'tiktok') + '<h2 class="h2 mt8">' + t('Self-reported') + '</h2>' + (s.other.length ? C.list(s.other.map((o) => C.row({ icon: 'globe', title: esc(t(o.platform) + ' · ' + o.handle), sub: t('{n} followers · not verified', { n: L.k(o.followers) }), chev: false }))) : '<div class="card p sub">' + t('None. Add YouTube, Facebook or others from Edit profile.') + '</div>') + '<p class="meta">' + t('Lokaly reads follower count and engagement only. We never post for you.') + '</p></div>';
+      row('ig', 'Instagram', 'insta') + row('tt', 'TikTok', 'tiktok') + '<h2 class="h2 mt8">' + t('Self-reported') + '</h2>' + (s.other.length ? C.list(s.other.map((o) => C.row({ icon: 'globe', title: esc(t(o.platform) + ' · ' + o.handle), sub: t('{n} followers · not verified', { n: L.k(o.followers) }), chev: false }))) : '<div class="card p sub">' + t('None. Add YouTube, Facebook or others from Edit profile.') + '</div>') + '<p class="meta">' + t('Clasp reads follower count and engagement only. We never post for you.') + '</p></div>';
   } });
   L.A.disconnect = (ph, k) => { ph.top().f.confirm = k; };
   L.A.disconnectYes = (ph, k) => { L.myCr().socials[k] = { connected: false }; ph.top().f.confirm = ''; const s = L.myCr().socials; L.W.crMe.meter.social = !!(s.ig.connected || s.tt.connected || s.other.length); ph.toast(t('Disconnected')); };

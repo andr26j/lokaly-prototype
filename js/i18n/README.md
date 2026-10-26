@@ -1,4 +1,4 @@
-# Lokaly prototype · EN/ES strings
+# Clasp prototype · EN/ES strings
 
 **Status: the ES copy is a DRAFT.** Matt's native reviewer has to sign it off before the Phase 1 design gate.
 

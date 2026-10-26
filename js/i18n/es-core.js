@@ -42,7 +42,7 @@ L.addES({
   'Review application': 'Revisar solicitud', 'Invite sent · waiting for {name}': 'Invitación enviada · esperando a {name}',
   'Fund to confirm {name}': 'Deposita para confirmar a {name}', 'Confirm {name}': 'Confirmar a {name}',
   'Visit {when}': 'Visita {when}', 'Agree a visit date': 'Acuerda una fecha de visita', 'Review · {h}h left': 'Revisar · quedan {h} h',
-  'Auto-released': 'Liberado automáticamente', 'Approved & released': 'Aprobado y liberado', 'Lokaly is reviewing': 'Lokaly lo está revisando',
+  'Auto-released': 'Liberado automáticamente', 'Approved & released': 'Aprobado y liberado', 'Clasp is reviewing': 'Clasp lo está revisando',
   'Respond to invite': 'Responder a la invitación', 'Waiting for {biz}': 'Esperando a {biz}', 'Waiting for funding': 'Esperando el depósito',
   'Waiting for confirmation': 'Esperando confirmación', 'Set visit date': 'Fija la fecha de visita', 'Submit your post': 'Entrega tu publicación',
   'Releasing in {h}h': 'Se libera en {h} h', 'Completes in {h}h': 'Se completa en {h} h',
@@ -53,10 +53,10 @@ L.addES({
   'Agree a time in chat, then set it here': 'Acuerda la hora en el chat y fíjala aquí', '{when} · 72h review': '{when} · revisión de 72 h',
   'Post URL + screenshot': 'Enlace de la publicación + captura', 'Auto-released after 72h': 'Liberado automáticamente a las 72 h', 'Approved': 'Aprobado',
   'Approve, or automatic after 72h': 'Aprobación, o automático a las 72 h',
-  'Problem reported': 'Problema notificado', 'Funds frozen · Lokaly is reviewing': 'Fondos congelados · Lokaly lo está revisando',
+  'Problem reported': 'Problema notificado', 'Funds frozen · Clasp is reviewing': 'Fondos congelados · Clasp lo está revisando',
   'Cancelled by creator': 'Cancelada por el creador', 'Cancelled by business': 'Cancelada por el negocio',
   'Cancelled by creator · business refunded': 'Cancelada por el creador · negocio reembolsado', 'Cancelled by business · business refunded': 'Cancelada por el negocio · negocio reembolsado',
-  'Lokaly refunded the business': 'Lokaly reembolsó al negocio',
+  'Clasp refunded the business': 'Clasp reembolsó al negocio',
 
   /* ── notifications + email subjects raised by core / seed ── */
   "Reminder · 24h left to review {name}'s post": 'Recordatorio · quedan 24 h para revisar la publicación de {name}',
@@ -71,10 +71,10 @@ L.addES({
   'Sign-in code': 'Código de acceso','Funding confirmation': 'Confirmación de depósito',
   'Release receipt': 'Recibo de liberación', 'Refund confirmation': 'Confirmación de reembolso',
   'Payout action required': 'Acción necesaria para cobrar', 'Dispute opened / resolved': 'Disputa abierta / resuelta', '{name} (sample)': '{name} (muestra)',
-  'Your sign-in code': 'Tu código de acceso', 'Enter this code in the Lokaly app. It expires in 10 minutes.': 'Introduce este código en la app de Lokaly. Caduca en 10 minutos.',
+  'Your sign-in code': 'Tu código de acceso', 'Enter this code in the Clasp app. It expires in 10 minutes.': 'Introduce este código en la app de Clasp. Caduca en 10 minutos.',
   "Didn't ask for this? Ignore this email. Nobody can sign in without the code.": '¿No lo has pedido? Ignora este correo. Nadie puede entrar sin el código.',
   'You funded {name}': 'Has depositado para {name}', '{amt} is held safely by Stripe for <b>{title}</b>.': 'Stripe retiene {amt} de forma segura para <b>{title}</b>.',
-  'Creator rate': 'Tarifa del creador', 'Lokaly fee 10%': 'Comisión de Lokaly 10 %',
+  'Creator rate': 'Tarifa del creador', 'Clasp fee 10%': 'Comisión de Clasp 10 %',
   'Released to {name}': 'Liberado a {name}', '<b>{title}</b> is complete.': '<b>{title}</b> se ha completado.',
   '<b>{title}</b> is complete (auto-released after 72 hours).': '<b>{title}</b> se ha completado (liberado automáticamente a las 72 horas).', 'Total paid': 'Total pagado',
   'Your refund is on its way': 'Tu reembolso está en camino', 'The collab with {name} for <b>{title}</b> was cancelled.': 'Se ha cancelado la colaboración con {name} para <b>{title}</b>.',
@@ -83,13 +83,13 @@ L.addES({
   '{amt} is on its way, {name}': '{name}, {amt} van de camino', 'Rate': 'Tarifa',
   'Your payouts need one thing': 'A tus cobros les falta una cosa',
   'Hi {name}, Stripe needs a little more information before we can pay you. It takes about three minutes.': 'Hola, {name}: Stripe necesita algo más de información para poder pagarte. Son unos tres minutos.',
-  'Finish in the app': 'Terminar en la app', 'Lokaly is reviewing a collab': 'Lokaly está revisando una colaboración',
+  'Finish in the app': 'Terminar en la app', 'Clasp is reviewing a collab': 'Clasp está revisando una colaboración',
   'A problem was reported on <b>{title}</b>. The payment is frozen and the 72-hour timer is paused.': 'Se ha notificado un problema en <b>{title}</b>. El pago está congelado y el plazo de 72 horas, en pausa.',
   'A problem was reported on <b>{title}</b> ({reason}). The payment is frozen and the 72-hour timer is paused.': 'Se ha notificado un problema en <b>{title}</b> ({reason}). El pago está congelado y el plazo de 72 horas, en pausa.',
   "We'll contact both sides soon. Reply to this email to add information.": 'Contactaremos con ambas partes en breve. Responde a este correo para añadir información.',
   '<b>Update:</b> resolved, released to the creator.': '<b>Actualización:</b> resuelta, liberado al creador.', '<b>Update:</b> resolved, refunded to the business.': '<b>Actualización:</b> resuelta, reembolsado al negocio.',
   'To: {to}': 'Para: {to}',
-  "Lokaly · Marbella, Spain · You get this email because of activity on your account. Transactional emails can't be switched off. EN/ES follows your app language.": 'Lokaly · Marbella, España · Recibes este correo por actividad en tu cuenta. Los correos transaccionales no se pueden desactivar. El idioma (EN/ES) sigue el de tu app.'
+  "Clasp · Marbella, Spain · You get this email because of activity on your account. Transactional emails can't be switched off. EN/ES follows your app language.": 'Clasp · Marbella, España · Recibes este correo por actividad en tu cuenta. Los correos transaccionales no se pueden desactivar. El idioma (EN/ES) sigue el de tu app.'
 });
 
 /* ── ES singulars: L.t picks '…@@one' when p.n === 1 (EN templates are unchanged) ── */
@@ -113,12 +113,12 @@ L.addES({
   "Withdrawal sent": "Retirada enviada",
   "withdrawal": "retirada",
   "It's released when you approve the post, or automatically 72 hours after it's submitted. Cancel before submission for a refund minus non-refundable charges.": "Se libera cuando apruebas la publicación o, automáticamente, 72 horas después de la entrega. Si cancelas antes de la entrega, se te reembolsa menos los cargos no reembolsables.",
-  "Withdrawal from your Lokaly wallet to {bank}.": "Retirada de tu monedero de Lokaly a {bank}.",
+  "Withdrawal from your Clasp wallet to {bank}.": "Retirada de tu monedero de Clasp a {bank}.",
   "Expect it in your bank in 1–3 business days.": "Llegará a tu banco en 1–3 días hábiles.",
-  "Response time (days): Lokaly to set.": "Plazo de respuesta (días): pendiente de Lokaly.",
+  "Response time (days): Clasp to set.": "Plazo de respuesta (días): pendiente de Clasp.",
   "Of which IVA 21%": "IVA 21 % incluido",
   "Non-refundable charges": "Cargos no reembolsables",
   "Withdraw from wallet": "Retirar del monedero",
-  "Lokaly subscription": "Suscripción a Lokaly",
+  "Clasp subscription": "Suscripción a Clasp",
   "Subscription restored": "Suscripción restaurada"
 });

@@ -1,4 +1,4 @@
-/* Lokaly motion: iOS-style movement on top of a runtime that re-renders a whole phone on every change.
+/* Clasp motion: iOS-style movement on top of a runtime that re-renders a whole phone on every change.
    Rule: motion plays when something opens, closes, arrives or changes value, never because a render happened.
    Every entry has a birth time; a re-render re-applies the same animation at the same moment, so it continues instead of replaying. */
 (function () {

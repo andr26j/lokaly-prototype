@@ -1,4 +1,4 @@
-/* Lokaly prototype · V2 tokens (Graphite noir, mist, pastel tiles, Liquid Glass bars) */
+/* Clasp prototype · V2 tokens (Graphite noir, mist, pastel tiles, Liquid Glass bars) */
 :root {
   --ground: #F5F6F4; --card: #FFFFFF; --border: #E4E6E2; --hair: #ECEEEA;
   --ink: #14171A; --ink2: #464C53; --ink3: #5C636B; --tabink: #2B3036;
@@ -524,7 +524,7 @@ textarea.inp { padding: 14px 16px; min-height: 110px; resize: none; line-height:
 .banner > div, .banner > span { flex: 1; min-width: 0; }
 /* A destructive button waiting for a reason reads as disabled (grey), not as a paler red. */
 .btn.dang.dis, .btn.dang[disabled] { background: #E3E6E0; color: var(--ink3); opacity: 1; box-shadow: none; }
-/* "Collabs on Lokaly" with a single collab: one full-width card, not half a rail. */
+/* "Collabs on Clasp" with a single collab: one full-width card, not half a rail. */
 .mini-h > .xcard:only-child { width: 100%; }
 .mini-h > .xcard:only-child .strip { height: 170px; }
 

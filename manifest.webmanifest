@@ -1,6 +1,6 @@
 {
-  "name": "Lokaly Prototype",
-  "short_name": "Lokaly",
+  "name": "Clasp Prototype",
+  "short_name": "Clasp",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

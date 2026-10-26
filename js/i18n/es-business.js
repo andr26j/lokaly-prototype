@@ -1,7 +1,7 @@
 /* ES draft for screens-business.js · DRAFT pending native review (Matt's reviewer signs off before the Phase 1 design gate).
    Keys are the EN source strings used in t(); keep {placeholders} and inline markup identical.
    Bare words already owned by es-core.js (Discover, Create, Profile, Active, Experience, Paid, New, Back, Close, Accepted,
-   Funded, Held, Released, Refunded, Invited, Creator rate, Lokaly fee 10%, Stripe costs (not refundable), Post/Reel/Stories/Video,
+   Funded, Held, Released, Refunded, Invited, Creator rate, Clasp fee 10%, Stripe costs (not refundable), Post/Reel/Stories/Video,
    NICHES/CATEGORIES/TOWNS, '{biz} invited you to {title}', "You're in · {amt} secured with {biz}") are reused, not redefined. */
 L.addES({
   'Active@@campaigns': 'Activas', 'Active@@collabs': 'Activas', 'New@@applicants': 'Nuevos', 'Invited@@applicants': 'Invitados',
@@ -94,7 +94,7 @@ L.addES({
   'your business': 'tu negocio',
   'Sign in so you can post campaigns and pay creators safely.': 'Inicia sesión para publicar campañas y pagar a los creadores de forma segura.',
   'My business': 'Mi negocio',
-  'Your Lokaly sign-in code': 'Tu código de acceso a Lokaly',
+  'Your Clasp sign-in code': 'Tu código de acceso a Clasp',
 
   /* ── B-04 Profile checklist ── */
   'Done': 'Listo',
@@ -142,7 +142,7 @@ L.addES({
   /* ── B-08 Creator profile ── */
   'Report or block': 'Denunciar o bloquear',
   'You': 'Tú',
-  'On Lokaly since {date}': 'En Lokaly desde {date}',
+  'On Clasp since {date}': 'En Clasp desde {date}',
   'followers · verified': 'seguidores · verificados',
   '{pct} engagement': '{pct} interacción',
   '30 days': '30 días',
@@ -156,8 +156,8 @@ L.addES({
   'Open portfolio photo': 'Abrir foto del portfolio',
   'Add 3 or more photos so businesses can see your style.': 'Añade 3 fotos o más para que los negocios vean tu estilo.',
   'No portfolio yet.': 'Aún no hay portfolio.',
-  'Collabs on Lokaly': 'Colaboraciones en Lokaly',
-  'New on Lokaly': 'Nuevo en Lokaly',
+  'Collabs on Clasp': 'Colaboraciones en Clasp',
+  'New on Clasp': 'Nuevo en Clasp',
   'No completed collabs yet': 'Aún no hay colaboraciones completadas',
   'Message': 'Mensaje',
   'Invite': 'Invitación',
@@ -346,7 +346,7 @@ L.addES({
 
   /* ── B-27 Review submission ── */
   "Review {name}'s post": 'Revisar la publicación de {name}',
-  'You reported a problem. Lokaly is reviewing.': 'Has informado de un problema. Lokaly lo está revisando.',
+  'You reported a problem. Clasp is reviewing.': 'Has informado de un problema. Clasp lo está revisando.',
   'Auto-released after 72 hours. This is read-only.': 'Liberado automáticamente tras 72 horas. Es de solo lectura.',
   'Approved. This is read-only.': 'Aprobado. Es de solo lectura.',
   '{h}<small>h left</small>': '{h}<small> h restantes</small>',
@@ -407,7 +407,7 @@ L.addES({
   'No cards saved': 'No hay tarjetas guardadas',
   'Add a card to fund collabs in one tap. Apple Pay works too.': 'Añade una tarjeta para depositar en las colaboraciones con un toque. También funciona Apple Pay.',
   'Add card': 'Añadir tarjeta',
-  'Cards are stored by Stripe, never by Lokaly': 'Stripe guarda las tarjetas, nunca Lokaly',
+  'Cards are stored by Stripe, never by Clasp': 'Stripe guarda las tarjetas, nunca Clasp',
   'Card removed': 'Tarjeta eliminada',
 
   /* ── B-32 / B-33 Membership ── */
@@ -467,7 +467,7 @@ L.addES({
   "Full address": "Dirección completa",
   "Street, number and postcode. Shown to creators you work with, so they can find you.": "Calle, número y código postal. La ven los creadores con los que trabajas, para que puedan encontrarte.",
   "Last step": "Último paso",
-  "Creators see this before they apply. Complete it to enter Lokaly. You're at {pct}%.": "Los creadores lo ven antes de solicitar. Complétalo para entrar en Lokaly. Vas por el {pct} %.",
+  "Creators see this before they apply. Complete it to enter Clasp. You're at {pct}%.": "Los creadores lo ven antes de solicitar. Complétalo para entrar en Clasp. Vas por el {pct} %.",
   "Nearest first": "Más cercanos primero",
   "Shown to businesses": "Visibles para negocios",
   "Businesses see your handles on your profile. Your surname stays private, and notifications use your first name only.": "Los negocios ven tus redes en tu perfil. Tus apellidos son privados y las notificaciones solo usan tu nombre.",
@@ -475,7 +475,7 @@ L.addES({
   "Post as many as you like, one creator each.": "Publica todas las que quieras, con un creador cada una.",
   "Browse and invite every creator": "Ve e invita a todos los creadores",
   "Discover, filters and invites, across the coast.": "Descubrir, filtros e invitaciones, en toda la costa.",
-  "No Lokaly fees on collabs": "Sin comisiones de Lokaly en las colaboraciones",
+  "No Clasp fees on collabs": "Sin comisiones de Clasp en las colaboraciones",
   "You pay the creator's rate. Receipts show IVA only.": "Pagas la tarifa del creador. Los recibos solo muestran el IVA.",
   "Subscribe · {price}/mo": "Suscribirse · {price}/mes",
   "Free campaigns": "Campañas gratis",
@@ -496,8 +496,8 @@ L.addES({
   "Offer your service in kind: a dinner, a treatment, a daybed. No fee.": "Ofrece tu servicio en especie: una cena, un tratamiento, una cama balinesa. Sin comisión.",
   "This is your last free campaign. After it, {price}/mo.": "Es tu última campaña gratis. Después, {price}/mes.",
   "{n} free campaigns left. After that, {price}/mo.": "Te quedan {n} campañas gratis. Después, {price}/mes.",
-  "Clause pending Lokaly's terms.": "Cláusula pendiente de los términos de Lokaly.",
-  "No Lokaly fees. Charged only when you accept the creator. Held by Stripe until you approve, or 72h after the post is submitted.": "Sin comisiones de Lokaly. Solo se cobra cuando aceptas al creador. Stripe lo retiene hasta que apruebas, o 72 h después de la entrega.",
+  "Clause pending Clasp's terms.": "Cláusula pendiente de los términos de Clasp.",
+  "No Clasp fees. Charged only when you accept the creator. Held by Stripe until you approve, or 72h after the post is submitted.": "Sin comisiones de Clasp. Solo se cobra cuando aceptas al creador. Stripe lo retiene hasta que apruebas, o 72 h después de la entrega.",
   "No money is held for Experience collabs, and there's no fee to publish.": "En las colaboraciones Experiencia no se retiene dinero y publicar no tiene coste.",
   "One creator per campaign. Need more? Post another campaign.": "Un creador por campaña. ¿Necesitas más? Publica otra campaña.",
   "when you accept the creator": "cuando aceptes al creador",
@@ -505,17 +505,17 @@ L.addES({
   "You pay when you accept": "Pagas al aceptar",
   "To publish": "Para publicar",
   "This uses 1 of your {total} free campaigns.": "Esto usa 1 de tus {total} campañas gratis.",
-  "{title} is on Lokaly. Creators in {town} can apply now.": "{title} ya está en Lokaly. Los creadores de {town} ya pueden solicitar.",
+  "{title} is on Clasp. Creators in {town} can apply now.": "{title} ya está en Clasp. Los creadores de {town} ya pueden solicitar.",
   "Both free campaigns used. Subscribe to post more, browse and invite.": "Has usado las dos campañas gratis. Suscríbete para publicar más, ver e invitar.",
   "{n} of {total} free campaigns used. Browse and invite creators while you have one left.": "{n} de {total} campañas gratis usadas. Puedes ver e invitar a creadores mientras te quede una.",
   "{name} is your creator for this campaign. New applicants can't be accepted.": "{name} es tu creador para esta campaña. No se pueden aceptar más solicitudes.",
   "Creator": "Creador",
   "Open@@slot": "Abierta",
   "This campaign already has its creator. Post another campaign to work with {name}.": "Esta campaña ya tiene su creador. Publica otra campaña para trabajar con {name}.",
-  "No Lokaly fees. Held by Stripe and released to {name}'s Lokaly wallet when you approve the post, or 72h after it's submitted. Cancel before submission for a refund minus non-refundable charges.": "Sin comisiones de Lokaly. Stripe lo retiene y se libera al monedero de Lokaly de {name} cuando apruebas la publicación, o 72 h después de la entrega. Si cancelas antes de la entrega, se reembolsa menos los cargos no reembolsables.",
-  "to {name}'s Lokaly wallet · no fees": "al monedero de Lokaly de {name} · sin comisiones",
+  "No Clasp fees. Held by Stripe and released to {name}'s Clasp wallet when you approve the post, or 72h after it's submitted. Cancel before submission for a refund minus non-refundable charges.": "Sin comisiones de Clasp. Stripe lo retiene y se libera al monedero de Clasp de {name} cuando apruebas la publicación, o 72 h después de la entrega. Si cancelas antes de la entrega, se reembolsa menos los cargos no reembolsables.",
+  "to {name}'s Clasp wallet · no fees": "al monedero de Clasp de {name} · sin comisiones",
   "Funding, releases and refunds show up here. Your subscription is billed by the App Store.": "Aquí verás depósitos, liberaciones y reembolsos. Tu suscripción la factura el App Store.",
-  "Fields depend on Lokaly's DAC7 / invoicing advice.": "Los campos dependen del asesoramiento de Lokaly sobre DAC7 y facturación.",
+  "Fields depend on Clasp's DAC7 / invoicing advice.": "Los campos dependen del asesoramiento de Clasp sobre DAC7 y facturación.",
   "Free · {n} of {total} left": "Gratis · quedan {n} de {total}",
   "Active@@sub": "Activa"
 });

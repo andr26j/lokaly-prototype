@@ -1,4 +1,4 @@
-/* Lokaly prototype runtime: one world, many phones. */
+/* Clasp prototype runtime: one world, many phones. */
 (function () {
   const L = window.L;
   L.S = {};          // screen registry: id -> {name, role, tab, sheet, noir, render}
@@ -65,8 +65,8 @@
   L.threadFor = (bizId, creatorId) => L.W.threads.find((t) => t.bizId === bizId && t.creatorId === creatorId);
   L.myCollabsB = () => L.W.collabs.filter((c) => L.camp(c.campaignId).bizId === L.W.bizMe.id);
   L.myCollabsC = () => L.W.collabs.filter((c) => c.creatorId === L.W.crMe.id);
-  // Business model v2: no Lokaly fee on collabs. The business pays the posted rate (IVA 21% included) and the creator's wallet
-  // gets all of it; Lokaly keeps 10% only when the creator withdraws (that fee includes IVA 21%).
+  // Business model v2: no Clasp fee on collabs. The business pays the posted rate (IVA 21% included) and the creator's wallet
+  // gets all of it; Clasp keeps 10% only when the creator withdraws (that fee includes IVA 21%).
   L.payB = (rate) => rate;
   L.netC = (rate) => rate;
   const r2 = (n) => Math.round(n * 100) / 100;
@@ -287,7 +287,7 @@
   C.empty = (o) => '<div class="empty"><span class="eic" data-in="pop">' + L.I(o.icon || 'spark', 26, 1.8) + '</span><b>' + esc(o.title) + '</b><p>' + esc(o.body) + '</p>' + (o.cta ? '<div class="mt8">' + o.cta + '</div>' : '') + '</div>';
   C.abar = (o) => '<div class="abar' + (o.title ? '' : ' solo') + '">' + (o.title ? '<span class="ab-t"><b>' + o.title + '</b>' + (o.sub ? '<span>' + o.sub + '</span>' : '') + '</span>' : '') + o.btn + '</div>';
   C.sheetHead = (title, sub) => '<div class="grab" aria-hidden="true"></div><div class="sheet-h"><h2>' + esc(title) + '</h2>' + C.gbtn('close', { close: 1, aria: t('Close') }) + '</div>' + (sub ? '<p class="sub" style="margin:-6px 0 16px">' + sub + '</p>' : '');
-  /* Deliberate open question for Omar / Lokaly (pending terms, legal wording, numbers). Hidden by the desk toggle 'Show open questions' (body.hide-oq). */
+  /* Deliberate open question for Omar / Clasp (pending terms, legal wording, numbers). Hidden by the desk toggle 'Show open questions' (body.hide-oq). */
   C.oq = (text) => '<span class="oq" data-oq><b class="oq-l">' + esc(t('Open question')) + '</b>' + (text ? '<span class="oq-t">' + esc(text) + '</span>' : '') + '</span>';
   C.money = (lines) => '<div class="money">' + lines.map((l) => '<div class="ml' + (l[2] ? ' tot' : '') + '"><span>' + esc(l[0]) + '</span><span>' + l[1] + '</span></div>').join('') + '</div>';
   C.banner = (tone, icon, html) => '<div class="banner ' + tone + '" data-row="bn:' + tone + ':' + L.hash(html) + '">' + L.I(icon, 18, 2) + '<div>' + html + '</div></div>';
@@ -329,7 +329,7 @@
       case 'active': return col.visitDate ? t('Visit {when}', { when: L.dt(col.visitDate) }) : t('Agree a visit date');
       case 'submitted': return t('Review · {h}h left', { h: L.hoursLeft(col) });
       case 'completed': return col.releaseReason === 'auto_released' ? t('Auto-released') : t('Approved & released');
-      case 'disputed': return t('Lokaly is reviewing');
+      case 'disputed': return t('Clasp is reviewing');
       case 'cancelled': return k.type === 'paid' ? t('Refunded') : t('Cancelled');
       default: return t(L.STATUS[col.status][0]);
     }
@@ -343,7 +343,7 @@
       case 'active': return !col.visitDate ? t('Set visit date') : col.visitDate > L.W.now ? t('Visit {when}', { when: L.dt(col.visitDate) }) : t('Submit your post');
       case 'submitted': return k.type === 'paid' ? t('Releasing in {h}h', { h: L.hoursLeft(col) }) : t('Completes in {h}h', { h: L.hoursLeft(col) });
       case 'completed': return k.type === 'paid' ? t('{amt} in your wallet', { amt: L.eur(L.netC(k.rate)) }) : t('Completed');
-      case 'disputed': return t('Lokaly is reviewing');
+      case 'disputed': return t('Clasp is reviewing');
       default: return t(L.STATUS[col.status][0]);
     }
   };
@@ -377,7 +377,7 @@
     }).join('');
     if (bad) {
       const by = col.cancelBy === 'creator' ? 'creator' : 'business';
-      const m = { disputed: ['Problem reported', 'Funds frozen · Lokaly is reviewing'], cancelled: ['Cancelled', paid ? 'Cancelled by ' + by + ' · business refunded' : 'Cancelled by ' + by], resolved_refunded: ['Refunded', 'Lokaly refunded the business'], declined: ['Not selected', ''], withdrawn: ['Withdrawn', ''], expired: ['Expired', ''] }[col.status];
+      const m = { disputed: ['Problem reported', 'Funds frozen · Clasp is reviewing'], cancelled: ['Cancelled', paid ? 'Cancelled by ' + by + ' · business refunded' : 'Cancelled by ' + by], resolved_refunded: ['Refunded', 'Clasp refunded the business'], declined: ['Not selected', ''], withdrawn: ['Withdrawn', ''], expired: ['Expired', ''] }[col.status];
       html += '<div class="tstep bad"' + L.tk('tl:' + col.id + ':bad', col.status, 'swap') + ' data-fam="tl:' + col.id + ':0"><span class="tdot">' + L.I('alert', 13, 2.6) + '</span><span class="tx"><b>' + esc(t(m[0])) + '</b><span>' + esc(m[1] ? t(m[1]) : '') + '</span></span></div>';
     }
     return html + '</div>';
@@ -635,7 +635,7 @@
     });
     const off = L.W.scen.offline ? '<div class="offline" role="status">' + L.I('wifioff', 14, 2) + esc(t('Offline · showing saved data')) + '</div>' : '';
     const ptext = this.push ? L.ntext(this.push) : '';
-    const push = this.push ? '<button type="button" class="push" data-k="p' + this.push.id + '" data-ov="push" aria-label="' + esc(t('Notification: {text}', { text: ptext })) + '"><span class="pi" aria-hidden="true">L</span><span class="pt"><b>Lokaly</b><span>' + esc(ptext) + '</span></span><span class="meta">' + t('now') + '</span></button>' : '';
+    const push = this.push ? '<button type="button" class="push" data-k="p' + this.push.id + '" data-ov="push" aria-label="' + esc(t('Notification: {text}', { text: ptext })) + '"><span class="pi" aria-hidden="true">L</span><span class="pt"><b>Clasp</b><span>' + esc(ptext) + '</span></span><span class="meta">' + t('now') + '</span></button>' : '';
     const toast = this.toastMsg ? '<div class="toast" role="status" data-k="t' + this.toastK + '" data-ov="toast">' + L.I('check', 16, 2.4) + esc(this.toastMsg) + '</div>' : '';
     const tone = (bdef.noir ? ' noir' : '') + (bdef.dark ? ' dark' : '');
     this.scr.className = 'scr' + tone; this.scr.dataset.screen = base.id; this.scr.dataset.role = this.role;

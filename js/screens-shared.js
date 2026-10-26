@@ -6,14 +6,14 @@
   const home = (ph) => (ph.role === 'business' ? 'B-00' : 'C-00');
 
   /* ───────── S-01 Launch ───────── */
-  S('S-01', { name: 'Launch', bleed: true, render:() => '<div style="height:844px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px"><span class="serif" style="font-size:56px;line-height:1">Lokaly</span><span class="meta">Costa del Sol</span></div>' });
+  S('S-01', { name: 'Launch', bleed: true, render:() => '<div style="height:844px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px"><svg viewBox="17.857 24.363 64.286 51.275" width="84" height="67" aria-hidden="true" style="margin-bottom:8px"><path d="M-3 -15H-10A15 15 0 0 0 -10 15H-3" transform="translate(50 50) rotate(-45) translate(-3 -4.6)" stroke="#2C3036" fill="none" stroke-width="9.4" stroke-linecap="round"/><path d="M3 -15H10A15 15 0 0 1 10 15H3" transform="translate(50 50) rotate(-45) translate(3 4.6)" stroke="#D2BD99" fill="none" stroke-width="9.4" stroke-linecap="round"/></svg><span class="serif" style="font-size:56px;line-height:1">Clasp</span><span class="meta">Costa del Sol</span></div>' });
 
   /* ───────── S-02 Welcome ───────── */
   S('S-02', { name: 'Welcome', dark: true, bleed: true, render:(x) => {
     const lang = x.w.lang;
     return '<div style="position:relative;height:844px;min-height:100%;color:#fff">' + C.ph(L.img('welcome'), 'position:absolute;inset:0;background-position:center top', t('An infinity pool above the Marbella coastline at golden hour')) +
       '<div aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(rgba(18,24,33,.55) 0%,rgba(18,24,33,0) 22%,rgba(10,12,14,0) 30%,rgba(10,12,14,.75) 72%,rgba(10,12,14,.92))"></div>' +
-      '<div style="position:absolute;top:58px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center"><span class="serif" style="font-size:28px">Lokaly</span>' +
+      '<div style="position:absolute;top:58px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center"><span class="serif" style="font-size:28px">Clasp</span>' +
       '<div class="seg" role="radiogroup" aria-label="' + esc(t('Language')) + '" style="background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)">' +
       ['en', 'es'].map((l) => '<button type="button" role="radio" aria-checked="' + (lang === l) + '" class="' + (lang === l ? 'on' : '') + '" data-act="setLang" data-arg="' + l + '" style="min-width:52px;' + (lang === l ? '' : 'color:#fff') + '">' + l.toUpperCase() + '</button>').join('') + '</div></div>' +
       '<div style="position:absolute;left:24px;right:24px;bottom:44px;display:flex;flex-direction:column;gap:14px">' +
@@ -52,7 +52,7 @@
       C.field({ label: t('Email'), bind: 'o.email', value: x.ph.ob.email, ph: t('you@example.com'), type: 'email', auto: 'email', mode: 'email', live: 1 }) +
       C.btn(t('Email me a code'), { kind: 'dark', full: 1, act: 'authEmail', arg: ctx, dis: !/\S+@\S+\.\S+/.test(x.ph.ob.email || '') }) +
       (x.ph.ob.authErr ? C.banner('bad', 'alert', esc(x.ph.ob.authErr)) : '') +
-      '<p class="meta center" style="margin:6px 0 0;line-height:18px">' + t('By continuing you agree to Lokaly\'s {terms} and {privacy}. No passwords, ever.', { terms: link(t('Terms')), privacy: link(t('Privacy Policy')) }) + '</p></div>';
+      '<p class="meta center" style="margin:6px 0 0;line-height:18px">' + t('By continuing you agree to Clasp\'s {terms} and {privacy}. No passwords, ever.', { terms: link(t('Terms')), privacy: link(t('Privacy Policy')) }) + '</p></div>';
   };
   L.signInBody = signInBody;
   S('S-04', { name: 'Sign in', render: (x) => {
@@ -99,14 +99,14 @@
   /* ───────── S-06 Location primer ───────── */
   S('S-06', { name: 'Location primer', render: (x) => '<div style="position:relative;height:420px">' + C.ph(L.img('coast'), 'position:absolute;inset:0', t('Coastline map-like photo')) + '<div aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(rgba(245,246,244,0) 40%,var(--ground))"></div>' +
     '<span style="position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:32px;background:rgba(255,255,255,.86);display:flex;align-items:center;justify-content:center;color:var(--ink)">' + I('pin', 28, 2) + '</span></div>' +
-    '<div class="pad stack g16"><h1 class="lt">' + t('Show what\'s near you') + '</h1><p class="sub" style="margin:0">' + (x.role === 'business' ? t('Lokaly uses your location to sort creators by distance. We never show your exact location to anyone.') : t('Lokaly uses your location to sort campaigns by distance. We never show your exact location to anyone.')) + '</p>' +
+    '<div class="pad stack g16"><h1 class="lt">' + t('Show what\'s near you') + '</h1><p class="sub" style="margin:0">' + (x.role === 'business' ? t('Clasp uses your location to sort creators by distance. We never show your exact location to anyone.') : t('Clasp uses your location to sort campaigns by distance. We never show your exact location to anyone.')) + '</p>' +
     '<div class="stack g10 mt12">' + C.btn(t('Allow location'), { kind: 'dark', full: 1, act: 'perm', arg: 'location|granted' }) + C.btn(t('Not now'), { kind: 'ghost', full: 1, act: 'perm', arg: 'location|denied' }) + '</div></div>' });
   /* ───────── S-07 Push primer ───────── */
   S('S-07', { name: 'Notifications primer', render: (x) => {
     const ex = x.role === 'business'
       ? [t('{name} applied to {title}', { name: 'Lucía', title: t('Sunset daybed reel') }), t('Submission ready · {h}h to review', { h: 72 })]
       : [t('You\'re in · {amt} secured', { amt: L.eur(200) }), t('{biz} approved your post', { biz: 'Casa Brisa' })];
-    return '<div class="pad stack g20" style="padding-top:150px"><div class="stack g10">' + ex.map((s, i) => '<div class="push" style="position:static;animation:none;opacity:' + (i ? '.7' : '1') + ';transform:scale(' + (i ? '.96' : '1') + ')"><span class="pi">L</span><span class="pt"><b>Lokaly</b><span>' + esc(s) + '</span></span><span class="meta">' + (i ? t('{h}h', { h: 2 }) : t('now')) + '</span></div>').join('') + '</div>' +
+    return '<div class="pad stack g20" style="padding-top:150px"><div class="stack g10">' + ex.map((s, i) => '<div class="push" style="position:static;animation:none;opacity:' + (i ? '.7' : '1') + ';transform:scale(' + (i ? '.96' : '1') + ')"><span class="pi">L</span><span class="pt"><b>Clasp</b><span>' + esc(s) + '</span></span><span class="meta">' + (i ? t('{h}h', { h: 2 }) : t('now')) + '</span></div>').join('') + '</div>' +
       '<h1 class="lt mt16">' + t('Know the moment it matters') + '</h1><p class="sub" style="margin:0">' + t('Applications, funding, submissions and payouts. One notification per event, never more.') + '</p>' +
       '<div class="stack g10 mt12">' + C.btn(t('Turn on notifications'), { kind: 'dark', full: 1, act: 'perm', arg: 'push|granted' }) + C.btn(t('Not now'), { kind: 'ghost', full: 1, act: 'perm', arg: 'push|denied' }) + '</div></div>';
   } });
@@ -178,7 +178,7 @@
       case 'auto': return paid ? t('Auto-released after {h}h', { h: 72 }) : t('Completed after {h}h', { h: 72 });
       case 'cancelled': return t('Collab cancelled');
       case 'disputed': return t('Problem reported · funds frozen');
-      case 'resolved': return t('Lokaly resolved this collab');
+      case 'resolved': return t('Clasp resolved this collab');
       case 'declined': return t('Not selected this time');
       case 'withdrawn': return t('Application withdrawn');
     }
@@ -231,7 +231,7 @@
     if (!th.msgs.length) html += C.empty({ icon: 'chat', title: t('Say hello'), body: x.role === 'business' ? t('Try: "Hi {name}, would you like to film our sunset menu?"', { name: cr.first }) : t('Introduce yourself and suggest a visit time.') });
     html += '</div>';
     const draft = x.f.msg || '';
-    const warn = x.f.warn ? '<div class="warn" role="alert"><b>' + t('Keep it on Lokaly') + '</b><span>' + t('Payments are only protected when you agree things here. Sharing phone numbers, emails or handles is discouraged.') + '</span><div class="hrow">' + C.btn(t('Edit'), { kind: 'sec', sm: 1, act: 'warnEdit' }) + C.btn(t('Send anyway'), { kind: 'dark', sm: 1, act: 'sendMsg', arg: th.id + '|force' }) + '</div></div>' : '';
+    const warn = x.f.warn ? '<div class="warn" role="alert"><b>' + t('Keep it on Clasp') + '</b><span>' + t('Payments are only protected when you agree things here. Sharing phone numbers, emails or handles is discouraged.') + '</span><div class="hrow">' + C.btn(t('Edit'), { kind: 'sec', sm: 1, act: 'warnEdit' }) + C.btn(t('Send anyway'), { kind: 'dark', sm: 1, act: 'sendMsg', arg: th.id + '|force' }) + '</div></div>' : '';
     x.fix('<div class="composer">' + warn + '<div class="comp-row">' + C.gbtn('image', { go: 'S-11:' + th.id, aria: t('Attach a photo') }) + '<label class="comp-in"><span class="sr">' + t('Message') + '</span><input data-bind="msg" data-enter="sendMsg" data-arg="' + th.id + '" placeholder="' + t('Message {name}', { name: esc(name) }) + '" value="' + esc(draft) + '"><button type="button" class="send" data-act="sendMsg" data-arg="' + th.id + '" aria-label="' + esc(t('Send')) + '">' + I('send', 18, 2.4) + '</button></label></div></div>');
     return html;
   } });
@@ -271,7 +271,7 @@
     const pics = ['coast', 'brunch', 'restaurant', 'spa', 'fitness', 'fashion', 'nightlife', 'lucia'].map(L.img);
     return C.sheetHead(t('Send a photo')) + '<div class="hrow g8" style="margin-bottom:14px">' + C.btn(t('Camera'), { kind: 'sec', sm: 1, icon: I('camera', 18, 2), act: 'attachCamera' }) + C.btn(t('All photos'), { kind: 'sec', sm: 1, icon: I('image', 18, 2), act: 'attachCamera' }) + '</div>' +
       '<div class="thumbs" style="grid-template-columns:repeat(3,1fr)">' + pics.map((p) => '<button type="button" class="ph" data-act="sendImg" data-arg="' + x.arg + '|' + p + '" aria-label="' + esc(t('Send this photo')) + '" style="background-image:url(' + p + ')"></button>').join('') + '</div>' +
-      '<p class="meta mt12">' + t('Lokaly asks for photo access the first time. Images are compressed before upload.') + '</p>';
+      '<p class="meta mt12">' + t('Clasp asks for photo access the first time. Images are compressed before upload.') + '</p>';
   } });
   L.A.attachCamera = (ph) => ph.toast(t('Camera opens here on device'));
   L.A.sendImg = (ph, arg) => {
@@ -293,16 +293,16 @@
 
     // contextual banner
     if (col.status === 'submitted') html += '<div class="tile lilac wide" style="cursor:default"><span class="tl">' + t('Review window') + '</span><span class="tv">' + L.hoursLeft(col) + '<small>h</small></span><span class="ts">' + (biz ? t('left to review, then it releases automatically') : paid ? t('until {amt} releases unless {biz} reports a problem', { amt: L.eur(L.netC(k.rate)), biz: b.name }) : t('until it completes unless {biz} reports a problem', { biz: b.name })) + '</span></div>';
-    if (col.status === 'disputed') html += C.banner('bad', 'alert', t('<b>Lokaly is reviewing this collab.</b><br>Funds are frozen and the {h}h timer is paused. We\'ll contact both sides within [X] business days.', { h: 72 }));
+    if (col.status === 'disputed') html += C.banner('bad', 'alert', t('<b>Clasp is reviewing this collab.</b><br>Funds are frozen and the {h}h timer is paused. We\'ll contact both sides within [X] business days.', { h: 72 }));
     if (col.status === 'completed' || col.status === 'resolved_released') html += C.banner('ok', 'check', '<b>' + (paid ? (biz ? t('{amt} released to {name}.', { amt: L.eur(L.netC(k.rate)), name: cr.first }) : t('{amt} is in your wallet.', { amt: L.eur(L.netC(k.rate)) })) : t('Collab complete.')) + '</b><br>' + t('A {pair} card now shows on both profiles.', { pair: esc(cr.first) + ' × ' + esc(b.name) }));
 
     html += '<div class="card p stack g12"><h2 class="h2">' + t('Status') + '</h2>' + C.timeline(col) + '</div>';
 
     // money
     if (paid) {
-      // v2: no Lokaly fee on the collab. Business: the rate with its IVA; creator: the full rate goes to the wallet.
+      // v2: no Clasp fee on the collab. Business: the rate with its IVA; creator: the full rate goes to the wallet.
       const lines = biz ? [[t('Creator rate'), L.eur(k.rate, 2)], [t('Of which IVA 21%'), L.eur(L.iva(k.rate), 2)], [col.status === 'cancelled' || col.status === 'resolved_refunded' ? t('Refunded to you') : t('You pay'), L.eur(L.payB(k.rate), 2), 1]] : [[t('Rate'), L.eur(k.rate, 2)], [t('To your wallet'), L.eur(L.netC(k.rate), 2), 1]];
-      html += '<div class="card p stack g12"><div class="hrow between"><h2 class="h2">' + t('Payment') + '</h2>' + C.pill(t('Protected by Stripe'), 'peach', 'shield') + '</div>' + (['applied', 'invited', 'awaiting'].includes(col.status) ? C.banner('grey', 'clock', biz ? t('Nothing is charged until you accept and fund.') : t('The business funds when they accept you. Then it\'s held for you.')) : C.escrow(col)) + C.money(lines) + (biz ? '' : '<span class="meta">' + t('Lokaly takes 10% only when you withdraw.') + '</span>') + '</div>';
+      html += '<div class="card p stack g12"><div class="hrow between"><h2 class="h2">' + t('Payment') + '</h2>' + C.pill(t('Protected by Stripe'), 'peach', 'shield') + '</div>' + (['applied', 'invited', 'awaiting'].includes(col.status) ? C.banner('grey', 'clock', biz ? t('Nothing is charged until you accept and fund.') : t('The business funds when they accept you. Then it\'s held for you.')) : C.escrow(col)) + C.money(lines) + (biz ? '' : '<span class="meta">' + t('Clasp takes 10% only when you withdraw.') + '</span>') + '</div>';
     } else {
       html += '<div class="card p stack g8"><div class="hrow between"><h2 class="h2">' + t('The offer') + '</h2>' + C.pill(t('No payment held'), 'grey') + '</div><b style="font-size:16px">' + esc(k.offer) + '</b><span class="meta">' + t('Estimated value {amt} · no fee', { amt: L.eur(k.value) }) + '</span></div>';
     }
@@ -329,7 +329,7 @@
     if (['awaiting', 'active'].includes(col.status)) sec.push(C.row({ icon: 'close', tone: 'grey', title: t('Cancel collab'), sub: biz ? (paid ? t('Refund minus non-refundable charges') : t('Free before submission')) : t('Before you submit only'), go: 'S-14:' + col.id }));
     if (['active', 'submitted'].includes(col.status) && (biz || col.status === 'active')) sec.push(C.row({ icon: 'flag', tone: 'red', title: t('Report a problem'), sub: biz ? t('No-show, content not as briefed…') : t('Business no-show or didn\'t honour the brief'), go: 'S-13:' + col.id }));
     if (col.status === 'submitted' && !biz) sec.push(C.row({ icon: 'help', tone: 'grey', title: t('Need help?'), sub: t('Cancelling isn\'t possible after you submit'), go: 'S-18' }));
-    if (col.status === 'disputed') sec.push(C.row({ icon: 'help', tone: 'grey', title: t('Add information for Lokaly'), sub: t('Photos, messages, anything useful'), go: 'S-18' }));
+    if (col.status === 'disputed') sec.push(C.row({ icon: 'help', tone: 'grey', title: t('Add information for Clasp'), sub: t('Photos, messages, anything useful'), go: 'S-18' }));
     if (!biz && col.status === 'applied') sec.push(C.row({ icon: 'close', tone: 'grey', title: t('Withdraw application'), act: 'withdraw', arg: col.id, chev: false }));
     if (sec.length) html += C.list(sec);
     html += '</div>';
@@ -372,9 +372,9 @@
     x.fix(C.top({ title: t('Report a problem'), solid: 1 }));
     const r = x.f.reason;
     x.fix(C.abar({ btn: C.btn(t('Report & freeze funds'), { kind: 'dang', full: 1, act: 'dispute', arg: col.id, dis: !r }) }));
-    return '<div class="pad stack g20" style="padding-top:116px"><p class="sub" style="margin:0">' + t('Reporting freezes the payment and pauses the {h}h timer. Lokaly reviews every report by hand.', { h: 72 }) + '</p>' +
+    return '<div class="pad stack g20" style="padding-top:116px"><p class="sub" style="margin:0">' + t('Reporting freezes the payment and pauses the {h}h timer. Clasp reviews every report by hand.', { h: 72 }) + '</p>' +
       '<div class="list" role="radiogroup" aria-label="' + esc(t('Reason')) + '">' + reasons.map((v) => '<button type="button" class="row" role="radio" aria-checked="' + (r === v) + '" data-set="reason" data-val="' + v + '"><span class="rt"><b>' + t(v) + '</b></span><span class="radio' + (r === v ? ' on' : '') + '"></span></button>').join('') + '</div>' +
-      C.field({ label: t('What happened?'), bind: 'note', value: x.f.note, textarea: 1, ph: t('Give Lokaly the details. Times, messages, anything useful.') }) +
+      C.field({ label: t('What happened?'), bind: 'note', value: x.f.note, textarea: 1, ph: t('Give Clasp the details. Times, messages, anything useful.') }) +
       '<button type="button" class="upl" data-toggle="photo">' + (x.f.photo ? C.ph(L.img('restaurant'), 'width:80px;height:60px;border-radius:10px') + t('Photo added · tap to remove') : I('camera', 22, 2) + t('Add a photo (optional)')) + '</button></div>';
   } });
   L.A.dispute = (ph, id) => {
@@ -382,8 +382,8 @@
     L.setStatus(col, 'disputed', { disputeReason: reason, disputeBy: ph.role });
     L.post(b.id, cr.id, { from: 'sys', deal: 'disputed', collabId: col.id }, k.id);
     L.email('E-08', b.name, 'Dispute opened · {title}', { col: col.id, opened: true }, { title: { camp: k.id } }); L.email('E-08', cr.first, 'Dispute opened · {title}', { col: col.id, opened: true }, { title: { camp: k.id } });
-    L.notify('business', { icon: 'alert', tone: 'red', msg: 'Lokaly is reviewing the {title} collab', p: { title: { camp: k.id } }, go: 'S-12:' + col.id });
-    L.notify('creator', { icon: 'alert', tone: 'red', msg: 'Lokaly is reviewing the {title} collab', p: { title: { camp: k.id } }, go: 'S-12:' + col.id });
+    L.notify('business', { icon: 'alert', tone: 'red', msg: 'Clasp is reviewing the {title} collab', p: { title: { camp: k.id } }, go: 'S-12:' + col.id });
+    L.notify('creator', { icon: 'alert', tone: 'red', msg: 'Clasp is reviewing the {title} collab', p: { title: { camp: k.id } }, go: 'S-12:' + col.id });
     ph.go('S-12:' + col.id, { replace: 1 }); ph.toast(t('Reported · funds frozen'));
   };
 
@@ -391,7 +391,7 @@
   S('S-14', { name: 'Cancel collab', render: (x) => {
     const col = L.col(x.arg); const k = L.camp(col.campaignId), b = L.biz(k.bizId), cr = L.cr(col.creatorId); const biz = x.role === 'business';
     x.fix(C.top({ title: t('Cancel collab'), solid: 1 }));
-    if (!['awaiting', 'active', 'invited', 'applied'].includes(col.status)) return '<div class="pad stack g16" style="padding-top:120px">' + C.empty({ icon: 'lock', title: t('Cancelling has closed'), body: t('Collabs can only be cancelled before the post is submitted. If something is wrong, report a problem and Lokaly will step in.'), cta: col.status === 'submitted' && biz ? C.btn(t('Report a problem'), { kind: 'dark', sm: 1, go: 'S-13:' + col.id }) : C.btn(t('Get help'), { kind: 'dark', sm: 1, go: 'S-18' }) }) + '</div>';
+    if (!['awaiting', 'active', 'invited', 'applied'].includes(col.status)) return '<div class="pad stack g16" style="padding-top:120px">' + C.empty({ icon: 'lock', title: t('Cancelling has closed'), body: t('Collabs can only be cancelled before the post is submitted. If something is wrong, report a problem and Clasp will step in.'), cta: col.status === 'submitted' && biz ? C.btn(t('Report a problem'), { kind: 'dark', sm: 1, go: 'S-13:' + col.id }) : C.btn(t('Get help'), { kind: 'dark', sm: 1, go: 'S-18' }) }) + '</div>';
     const funded = col.history.some((h) => h.s === 'active') && k.type === 'paid';
     const lines = funded ? (biz ? [[t('Held for this collab'), L.eur(L.payB(k.rate), 2)], [t('Non-refundable charges'), '−' + L.eur(L.stripeCost(L.payB(k.rate)), 2)], [t('Refunded to your card'), L.eur(L.payB(k.rate) - L.stripeCost(L.payB(k.rate)), 2), 1]] : [[t('Your rate'), L.eur(k.rate, 2)], [t('You receive'), L.eur(0, 2), 1]]) : null;
     const r = x.f.reason;
@@ -428,7 +428,7 @@
       C.row({ icon: 'pin', title: t('Location'), right: p.location === 'granted' ? t('While using') : t('Off'), act: 'locSetting' }),
       x.role === 'business' ? C.row({ icon: 'card', title: t('Payment methods'), go: 'B-31' }) : C.row({ icon: 'euro', title: t('Payout account'), right: t({ verified: 'Verified@@payout', review: 'In review', action: 'Action needed', none: 'Not set up' }[L.W.crMe.payout]), go: 'C-17' })
     ]) + C.list([C.row({ icon: 'doc', title: t('Terms & privacy'), go: 'S-19:view' }), C.row({ icon: 'help', title: t('Help'), go: 'S-18' })]) +
-      C.list([C.row({ icon: 'logout', title: t('Sign out'), act: 'signOut', chev: false }), C.row({ icon: 'trash', tone: 'red', title: t('Delete account'), go: 'S-21', dang: 1 })]) + '<p class="meta center">' + t('Lokaly 1.0 (prototype) · EN/ES') + '</p></div>';
+      C.list([C.row({ icon: 'logout', title: t('Sign out'), act: 'signOut', chev: false }), C.row({ icon: 'trash', tone: 'red', title: t('Delete account'), go: 'S-21', dang: 1 })]) + '<p class="meta center">' + t('Clasp 1.0 (prototype) · EN/ES') + '</p></div>';
   } });
   L.A.locSetting = (ph) => { const p = L.W.perms[ph.role]; p.location = p.location === 'granted' ? 'denied' : 'granted'; ph.toast(p.location === 'granted' ? t('Location on') : t('Location off · distance filter hidden')); };
   L.A.signOut = (ph) => { ph.sheets = []; ph.stack = [{ id: 'S-02', f: {} }]; ph.ob = {}; ph.render(); };
@@ -437,8 +437,8 @@
   S('S-16', { name: 'Notification settings', render: (x) => {
     x.fix(C.top({ title: t('Notifications'), solid: 1 }));
     const pr = L.W.prefs[x.role]; const denied = L.W.perms[x.role].push !== 'granted';
-    const cats = [['collabs', t('Collabs'), t('Applications, invites, status changes')], ['messages', t('Messages'), t('New messages, bundled per chat')], ['payments', t('Payments'), x.role === 'business' ? t('Funding, releases, refunds') : t('Funding, releases, payouts')], ['marketing', t('News from Lokaly'), t('New features, local events')]];
-    return '<div class="pad stack g20" style="padding-top:116px">' + (denied ? '<button type="button" class="banner warn2" data-act="perm2" style="width:100%;text-align:left">' + I('alert', 18, 2) + '<span>' + t('<b>Notifications are off for Lokaly.</b><br>Turn them on in iOS Settings to get pushes. Tap to open Settings.') + '</span></button>' : '') +
+    const cats = [['collabs', t('Collabs'), t('Applications, invites, status changes')], ['messages', t('Messages'), t('New messages, bundled per chat')], ['payments', t('Payments'), x.role === 'business' ? t('Funding, releases, refunds') : t('Funding, releases, payouts')], ['marketing', t('News from Clasp'), t('New features, local events')]];
+    return '<div class="pad stack g20" style="padding-top:116px">' + (denied ? '<button type="button" class="banner warn2" data-act="perm2" style="width:100%;text-align:left">' + I('alert', 18, 2) + '<span>' + t('<b>Notifications are off for Clasp.</b><br>Turn them on in iOS Settings to get pushes. Tap to open Settings.') + '</span></button>' : '') +
       '<div class="stack g10"><h2 class="h2">' + t('Push') + '</h2>' + C.list(cats.map((c) => C.togRow(c[1], c[2], pr.push[c[0]] && !denied, { act: 'pref', arg: 'push|' + c[0] }))) + '</div>' +
       '<div class="stack g10"><h2 class="h2">' + t('Email') + '</h2>' + C.list(cats.map((c) => c[0] === 'payments' ? C.togRow(c[1], t('Receipts and payouts are always emailed'), true, { lock: 1, act: 'prefLocked' }) : C.togRow(c[1], c[2], pr.email[c[0]], { act: 'pref', arg: 'email|' + c[0] }))) + '</div></div>';
   } });
@@ -459,27 +459,27 @@
   // [question, answer, params()] — answers keep money/percent/hours as params so they format per locale.
   const FAQ = {
     business: [
-      ['When am I charged?', 'When you accept a creator, you fund their rate (IVA included). There are no Lokaly fees on collabs. Lokaly holds it until you approve the post, or {h} hours pass after submission.', () => ({ h: 72 })],
+      ['When am I charged?', 'When you accept a creator, you fund their rate (IVA included). There are no Clasp fees on collabs. Clasp holds it until you approve the post, or {h} hours pass after submission.', () => ({ h: 72 })],
       ['What does the subscription include?', 'Your first {n} campaigns are free. After that, {price}/mo lets you post campaigns, browse every creator and send invites.', () => ({ n: L.FREE_CAMPAIGNS, price: L.eur(L.SUB_PRICE, 2) })],
       ['How many creators per campaign?', 'One. To work with more creators, post another campaign.'],
       ['Can I cancel?', 'Either side can cancel before the post is submitted. You\'re refunded, minus non-refundable charges.'],
-      ['What if a creator doesn\'t show up?', 'Report a problem from the collab. Funds freeze and Lokaly reviews it by hand.']
+      ['What if a creator doesn\'t show up?', 'Report a problem from the collab. Funds freeze and Clasp reviews it by hand.']
     ],
     creator: [
-      ['When do I get paid?', 'When the business approves your post, or automatically {h} hours after you submit, the full rate goes to your Lokaly wallet. Withdraw to your bank whenever you like.', () => ({ h: 72 })],
-      ['What does Lokaly take?', '{pct} when you withdraw, nothing before. Withdraw {gross} and {net} lands in your bank.', () => ({ pct: L.pct(10), gross: L.eur(200), net: L.eur(180) })],
+      ['When do I get paid?', 'When the business approves your post, or automatically {h} hours after you submit, the full rate goes to your Clasp wallet. Withdraw to your bank whenever you like.', () => ({ h: 72 })],
+      ['What does Clasp take?', '{pct} when you withdraw, nothing before. Withdraw {gross} and {net} lands in your bank.', () => ({ pct: L.pct(10), gross: L.eur(200), net: L.eur(180) })],
       ['Who sees my surname?', 'Nobody. Businesses see your first name and your social handles, and notifications only ever use your first name.'],
       ['Is there a limit on applications?', 'No. Apply to as many campaigns as you like.'],
-      ['Can I cancel?', 'Yes, before you submit. After that, contact Lokaly via Help.']
+      ['Can I cancel?', 'Yes, before you submit. After that, contact Clasp via Help.']
     ]
   };
   S('S-18', { name: 'Help', render: (x) => {
     x.fix(C.top({ title: t('Help'), solid: 1 }));
     const open = x.f.open;
     return '<div class="pad stack g20" style="padding-top:116px"><h1 class="lt">' + t('How can we help?') + '</h1><div class="list">' + FAQ[x.role].map((q, i) => '<div><button type="button" class="row" data-set="open" data-val="' + (open === String(i) ? '' : i) + '" aria-expanded="' + (open === String(i)) + '"><span class="rt"><b>' + t(q[0]) + '</b></span>' + I(open === String(i) ? 'down' : 'chev', 16, 2) + '</button>' + (open === String(i) ? '<p class="sub" style="margin:0 0 14px">' + t(q[1], q[2] ? q[2]() : undefined) + '</p>' : '') + '</div>').join('') + '</div>' +
-      '<div class="card p stack g10"><b>' + t('Still stuck?') + '</b><span class="sub">' + t('We reply within one business day, in English or Spanish.') + '</span>' + C.btn(t('Email Lokaly'), { kind: 'dark', full: 1, icon: I('mail', 18, 2), act: 'emailSupport' }) + '</div>' + C.list([C.row({ icon: 'doc', title: t('Fees, cancellations & disputes'), sub: t('The full terms'), go: 'S-19:view' })]) + '</div>';
+      '<div class="card p stack g10"><b>' + t('Still stuck?') + '</b><span class="sub">' + t('We reply within one business day, in English or Spanish.') + '</span>' + C.btn(t('Email Clasp'), { kind: 'dark', full: 1, icon: I('mail', 18, 2), act: 'emailSupport' }) + '</div>' + C.list([C.row({ icon: 'doc', title: t('Fees, cancellations & disputes'), sub: t('The full terms'), go: 'S-19:view' })]) + '</div>';
   } });
-  L.A.emailSupport = (ph) => ph.toast(t('Opens Mail to {email}', { email: 'support@lokaly.app' }));
+  L.A.emailSupport = (ph) => ph.toast(t('Opens Mail to {email}', { email: 'support@clasp.app' }));
 
   /* ───────── S-19 Legal & consent ───────── */
   S('S-19', { name: 'Terms & consent', render: (x) => {
@@ -489,12 +489,12 @@
     const ok = f.terms && (!creator || (f.rights && f.cterms));
     const ck = (key, title, sub, req) => '<button type="button" class="row" role="checkbox" aria-checked="' + !!f[key] + '" data-toggle="' + key + '"><span class="check' + (f[key] ? ' on' : '') + '">' + (f[key] ? I('check', 15, 3) : '') + '</span><span class="rt"><b style="font-size:14.5px">' + title + (req ? '' : ' <span class="meta">' + t('(optional)') + '</span>') + '</b><span>' + sub + '</span></span></button>';
     const pct = L.pct(10);
-    const body = '<div class="card p stack g10" style="max-height:' + (view ? 'none' : '250px') + ';overflow:auto"><span class="caps ink3">' + t('Version {v} · {date}', { v: '1.0', date: L.dshort(new Date(2026, 9, 19).getTime()) + ' 2026' }) + '</span><b>' + t('Terms of Service') + '</b><p class="sub" style="margin:0">' + C.oq(t('Final wording supplied by Lokaly\'s lawyer.')) + ' ' + t('Lokaly connects local businesses with creators. Businesses get {n} campaigns free, then subscribe for {price}/mo; there are no fees on collabs. Payments for paid collabs are processed and held by Stripe Connect. Either side may cancel before submission. Disputes freeze funds and are reviewed by Lokaly.', { n: L.FREE_CAMPAIGNS, price: L.eur(L.SUB_PRICE, 2) }) + '</p>' +
-      (creator || view ? '<b>' + t('Creator Terms of Service') + '</b><p class="sub" style="margin:0">' + C.oq(t('Final wording supplied by Lokaly\'s lawyer.')) + ' ' + t('Lokaly is free for creators. Approved collabs pay the full rate into your Lokaly wallet, on approval or automatically 72 hours after you submit. Lokaly keeps {pct} of each withdrawal (IVA included). You deliver what the brief asks for, label it as an ad where the law requires, and can cancel only before you submit.', { pct }) + '</p>' : '') +
-      '<b>' + t('Privacy Policy') + '</b><p class="sub" style="margin:0">' + C.oq(t('GDPR wording from Lokaly\'s lawyer.')) + ' ' + t('Data is stored in the EU. Creators\' surnames are never shown.') + '</p><b>' + t('Content rights') + '</b><p class="sub" style="margin:0">' + C.oq(t('Clause pending.')) + ' ' + t('Businesses may repost delivered content on their own channels with credit for 12 months.') + '</p></div>';
+    const body = '<div class="card p stack g10" style="max-height:' + (view ? 'none' : '250px') + ';overflow:auto"><span class="caps ink3">' + t('Version {v} · {date}', { v: '1.0', date: L.dshort(new Date(2026, 9, 19).getTime()) + ' 2026' }) + '</span><b>' + t('Terms of Service') + '</b><p class="sub" style="margin:0">' + C.oq(t('Final wording supplied by Clasp\'s lawyer.')) + ' ' + t('Clasp connects local businesses with creators. Businesses get {n} campaigns free, then subscribe for {price}/mo; there are no fees on collabs. Payments for paid collabs are processed and held by Stripe Connect. Either side may cancel before submission. Disputes freeze funds and are reviewed by Clasp.', { n: L.FREE_CAMPAIGNS, price: L.eur(L.SUB_PRICE, 2) }) + '</p>' +
+      (creator || view ? '<b>' + t('Creator Terms of Service') + '</b><p class="sub" style="margin:0">' + C.oq(t('Final wording supplied by Clasp\'s lawyer.')) + ' ' + t('Clasp is free for creators. Approved collabs pay the full rate into your Clasp wallet, on approval or automatically 72 hours after you submit. Clasp keeps {pct} of each withdrawal (IVA included). You deliver what the brief asks for, label it as an ad where the law requires, and can cancel only before you submit.', { pct }) + '</p>' : '') +
+      '<b>' + t('Privacy Policy') + '</b><p class="sub" style="margin:0">' + C.oq(t('GDPR wording from Clasp\'s lawyer.')) + ' ' + t('Data is stored in the EU. Creators\' surnames are never shown.') + '</p><b>' + t('Content rights') + '</b><p class="sub" style="margin:0">' + C.oq(t('Clause pending.')) + ' ' + t('Businesses may repost delivered content on their own channels with credit for 12 months.') + '</p></div>';
     if (view) return '<div class="pad stack g16" style="padding-top:116px">' + body + '</div>';
     x.fix(C.abar({ btn: C.btn(t('Agree & continue'), { kind: 'dark', full: 1, act: 'consent', arg: x.arg, dis: !ok }) }));
-    return '<div class="pad stack g16" style="padding-top:116px">' + body + C.list([ck('terms', t('I agree to the Terms and Privacy Policy'), t('Required'), 1)].concat(creator ? [ck('cterms', t('I agree to the Creator Terms of Service'), t('Required'), 1), ck('rights', t('I grant content rights for delivered posts'), t('Required to apply to campaigns'), 1)] : []).concat([ck('mkt', t('Send me Lokaly news'), t('Max one email a month'), 0)])) + '</div>';
+    return '<div class="pad stack g16" style="padding-top:116px">' + body + C.list([ck('terms', t('I agree to the Terms and Privacy Policy'), t('Required'), 1)].concat(creator ? [ck('cterms', t('I agree to the Creator Terms of Service'), t('Required'), 1), ck('rights', t('I grant content rights for delivered posts'), t('Required to apply to campaigns'), 1)] : []).concat([ck('mkt', t('Send me Clasp news'), t('Max one email a month'), 0)])) + '</div>';
   } });
   L.A.consent = (ph, ctx) => {
     if (ph.role === 'business') { L.finishBizOnboarding(ph); ph.go('S-06'); }
@@ -503,7 +503,7 @@
 
   /* ───────── S-20 Offline / system ───────── */
   S('S-20', { name: 'System states', render: (x) => {
-    if (x.arg === 'update') return '<div class="pad stack g16" style="padding-top:220px;text-align:center;align-items:center"><span class="serif" style="font-size:40px">Lokaly</span><h1 class="lt" style="font-size:32px">' + t('Time for an update') + '</h1><p class="sub" style="margin:0;max-width:280px">' + t('This version is no longer supported. Update to keep your payments protected.') + '</p><div class="mt16" style="width:100%">' + C.btn(t('Update in the App Store'), { kind: 'dark', full: 1, act: 'dismissSystem' }) + '</div></div>';
+    if (x.arg === 'update') return '<div class="pad stack g16" style="padding-top:220px;text-align:center;align-items:center"><span class="serif" style="font-size:40px">Clasp</span><h1 class="lt" style="font-size:32px">' + t('Time for an update') + '</h1><p class="sub" style="margin:0;max-width:280px">' + t('This version is no longer supported. Update to keep your payments protected.') + '</p><div class="mt16" style="width:100%">' + C.btn(t('Update in the App Store'), { kind: 'dark', full: 1, act: 'dismissSystem' }) + '</div></div>';
     return '<div class="pad" style="padding-top:200px">' + C.empty({ icon: 'wifioff', title: t('Something went wrong'), body: t('We couldn\'t load this. Check your connection and try again.'), cta: C.btn(t('Try again'), { kind: 'dark', sm: 1, icon: I('refresh', 16, 2), act: 'dismissSystem' }) }) + '</div>';
   } });
   L.A.dismissSystem = (ph) => { L.W.scen.forceUpdate = false; if (ph.stack.length > 1) ph.back(); else ph.go(home(ph), { root: 1 }); };
@@ -527,18 +527,18 @@
   S('S-22', { name: 'Report or block', sheet: true, render: (x) => {
     const [kind, id] = x.arg.split(':');
     const name = kind === 'cr' ? L.cr(id).first : L.biz(id).name;
-    if (x.f.mode === 'report') return C.sheetHead(t('Report {name}', { name })) + '<div class="list">' + ['Spam or scam', 'Inappropriate content', 'Asked to pay outside Lokaly', 'Pretending to be someone else', 'Something else'].map((r) => '<button type="button" class="row" data-act="reportUser" data-arg="' + x.arg + '|' + r + '"><span class="rt"><b>' + t(r) + '</b></span>' + I('chev', 16, 2) + '</button>').join('') + '</div>';
+    if (x.f.mode === 'report') return C.sheetHead(t('Report {name}', { name })) + '<div class="list">' + ['Spam or scam', 'Inappropriate content', 'Asked to pay outside Clasp', 'Pretending to be someone else', 'Something else'].map((r) => '<button type="button" class="row" data-act="reportUser" data-arg="' + x.arg + '|' + r + '"><span class="rt"><b>' + t(r) + '</b></span>' + I('chev', 16, 2) + '</button>').join('') + '</div>';
     if (x.f.mode === 'block') return C.sheetHead(t('Block {name}?', { name }), t('They won\'t be able to message or invite you, and you won\'t see each other in Discover. They aren\'t told.')) + '<div class="stack g10">' + C.btn(t('Block {name}', { name }), { kind: 'dang', full: 1, act: 'blockUser', arg: x.arg }) + C.btn(t('Cancel'), { kind: 'ghost', full: 1, close: 1 }) + '</div>';
-    return C.sheetHead(name) + C.list([C.row({ icon: 'flag', tone: 'red', title: t('Report'), sub: t('Lokaly reviews every report'), set: 'mode', val: 'report' }), C.row({ icon: 'block', tone: 'grey', title: t('Block'), sub: t('Stop all contact'), set: 'mode', val: 'block' })]);
+    return C.sheetHead(name) + C.list([C.row({ icon: 'flag', tone: 'red', title: t('Report'), sub: t('Clasp reviews every report'), set: 'mode', val: 'report' }), C.row({ icon: 'block', tone: 'grey', title: t('Block'), sub: t('Stop all contact'), set: 'mode', val: 'block' })]);
   } });
-  L.A.reportUser = (ph, arg) => { L.W.reports.push(arg); ph.sheets = []; ph.toast(t('Thanks. Lokaly will review this')); };
+  L.A.reportUser = (ph, arg) => { L.W.reports.push(arg); ph.sheets = []; ph.toast(t('Thanks. Clasp will review this')); };
   L.A.blockUser = (ph, arg) => { const id = arg.split(':')[1]; L.W.blocked.push(id); ph.sheets = []; ph.toast(t('Blocked')); if (ph.base().id === 'S-10') ph.back(); };
 
   /* ───────── Stripe PaymentSheet (funding a collab) ───────── */
   const paySheet = (x, amount, label, purpose, arg) => {
     const st = x.ph.payState || 'idle';
     const card = L.W.bizMe.cards.find((c) => c.def) || L.W.bizMe.cards[0];
-    if (st === '3ds') return '<div class="grab"></div><div class="stack g16" style="padding:6px 0 0"><div class="hrow between"><b>' + t('Secure checkout') + '</b><span class="meta">Banco Sabadell</span></div><h2 class="h2" style="font-size:22px">' + t('Confirm it\'s you') + '</h2><p class="sub" style="margin:0">' + t('Your bank needs you to approve {amt} to Lokaly in your banking app.', { amt: L.eur(amount, 2) }) + '</p>' + C.btn(t('I\'ve approved it'), { kind: 'dark', full: 1, act: 'pay3ds', arg: purpose + '|' + arg }) + C.btn(t('Cancel'), { kind: 'ghost', full: 1, act: 'payCancel' }) + '</div>';
+    if (st === '3ds') return '<div class="grab"></div><div class="stack g16" style="padding:6px 0 0"><div class="hrow between"><b>' + t('Secure checkout') + '</b><span class="meta">Banco Sabadell</span></div><h2 class="h2" style="font-size:22px">' + t('Confirm it\'s you') + '</h2><p class="sub" style="margin:0">' + t('Your bank needs you to approve {amt} to Clasp in your banking app.', { amt: L.eur(amount, 2) }) + '</p>' + C.btn(t('I\'ve approved it'), { kind: 'dark', full: 1, act: 'pay3ds', arg: purpose + '|' + arg }) + C.btn(t('Cancel'), { kind: 'ghost', full: 1, act: 'payCancel' }) + '</div>';
     return C.sheetHead(label) +
       '<div class="stack g16"><div class="card line p stack g4"><span class="meta">' + t('Held by Stripe until you approve, or 72h after the post is submitted') + '</span><span class="num" style="font-size:40px;letter-spacing:-0.04em">' + L.eur(amount, 2) + '</span></div>' +
       (st === 'declined' ? C.banner('bad', 'alert', t('<b>Your card was declined.</b><br>Try again or use a different card.')) : '') +
@@ -569,10 +569,10 @@
   /* ───────── App Store purchase sheet (RevenueCat) ───────── */
   S('IAP', { name: 'App Store purchase', sheet: true, render: (x) => {
     // One product in v2: the business subscription. Its name stays as-is.
-    const info = { name: 'Lokaly', price: L.eur(L.SUB_PRICE, 2) };
+    const info = { name: 'Clasp', price: L.eur(L.SUB_PRICE, 2) };
     const st = x.ph.iapState;
     return '<div class="grab"></div><div class="stack g16"><div class="hrow between"><b style="font-size:17px">App Store</b>' + C.gbtn('close', { act: 'iapCancel', aria: t('Cancel purchase') }) + '</div>' +
-      '<div class="hrow g12"><span class="logo" style="width:56px;height:56px;border-radius:14px;background:#17181B;color:#D9DCE1;font-size:28px">L</span><span class="stack"><b>' + esc(info.name) + '</b><span class="meta">' + t('Lokaly · Subscription') + '</span></span></div>' +
+      '<div class="hrow g12"><span class="logo" style="width:56px;height:56px;border-radius:14px;background:#17181B;color:#D9DCE1;font-size:28px">L</span><span class="stack"><b>' + esc(info.name) + '</b><span class="meta">' + t('Clasp · Subscription') + '</span></span></div>' +
       C.money([[t('Price'), t('{price} per month', { price: info.price })], [t('Renews'), t('Monthly until cancelled')], [t('Account'), 'andres@icloud.example']]) +
       (st === 'failed' ? C.banner('bad', 'alert', t('Purchase couldn\'t be completed. You weren\'t charged.')) : '') +
       C.btn(t('Subscribe'), { kind: 'dark', full: 1, act: 'iapBuy', arg: x.arg, busy: st === 'processing', busyLabel: t('Confirming…') }) + '<p class="meta center" style="margin:0">' + t('Double-click the side button to confirm on device.') + '</p></div>';

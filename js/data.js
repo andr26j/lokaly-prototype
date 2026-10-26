@@ -185,7 +185,7 @@
     ];
   }
 
-  // Creator wallet (v2): released collabs credit the full rate; Lokaly keeps 10% of each withdrawal. Lucía's €150 from Spa Agua Clara
+  // Creator wallet (v2): released collabs credit the full rate; Clasp keeps 10% of each withdrawal. Lucía's €150 from Spa Agua Clara
   // was released Sun 20 Sep; she withdrew €100 on Wed 23 Sep (€90 landed), so €50 is left in her wallet.
   function withdrawals() {
     return [{ id: 'w1', creatorId: 'cr1', amount: 100, status: 'paid', at: NOW - 26 * D, arrive: NOW - 24 * D, ref: 'po_1PzA4Lk' }];

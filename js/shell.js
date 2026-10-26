@@ -1,4 +1,4 @@
-/* The desk around the phones: flows, scenarios, Lokaly ops, screen index, email outbox. */
+/* The desk around the phones: flows, scenarios, Clasp ops, screen index, email outbox. */
 (function () {
   const L = window.L, esc = L.esc, I = L.I;
 
@@ -85,7 +85,7 @@
     { id: 'subscribe', name: '3rd campaign → subscribe', ref: '§2.3 · §2.9', preset: 'demo', steps: [T('business', 'B-37', 'Create tab: both free campaigns used → Noir paywall'), T('business', 'IAP', 'Subscribe · €49.99/mo'), T('business', 'B-38', 'Confirm in the App Store sheet → subscribed'), T('business', 'B-14', 'Create a campaign')] },
     { id: 'wizard', name: 'Create campaign wizard', ref: '§2.4', preset: 'demo', steps: [T('business', 'B-14', 'Create tab'), T('business', 'B-15', 'Paid'), T('business', 'B-16', 'Essentials (title, photo)'), T('business', 'B-17', 'Brief & deliverables'), T('business', 'B-18', 'Budget & timing'), T('business', 'B-20', 'Publish'), T('creator', 'C-06', 'Creator: Discover shows it under Open now')] },
     { id: 'invite', name: 'Invite → accept → fund', ref: '§2.5 alt', preset: 'demo', steps: [T('business', 'B-08', 'Discover → open Lucía'), T('business', 'B-12', 'Invite → pick Daybed for two or Sunset daybed reel'), T('creator', 'C-13', 'Creator: tap the invite push'), T('business', 'B-25', 'Creator accepts → Business: fund to confirm'), T('creator', 'S-12', 'Creator: collab is active')] },
-    { id: 'dispute', name: 'Cancel & dispute', ref: '§2.7', preset: 'demo', steps: [T('business', 'B-27', 'Business: Home → Review window → Clara\'s post'), T('business', 'S-13', 'Report a problem → Content not as briefed'), T('business', 'S-12', 'Funds frozen. Resolve it from Lokaly ops in this sidebar'), T('creator', 'S-14', 'Creator: Work → Mar de Olivos collab → Cancel collab')] },
+    { id: 'dispute', name: 'Cancel & dispute', ref: '§2.7', preset: 'demo', steps: [T('business', 'B-27', 'Business: Home → Review window → Clara\'s post'), T('business', 'S-13', 'Report a problem → Content not as briefed'), T('business', 'S-12', 'Funds frozen. Resolve it from Clasp ops in this sidebar'), T('creator', 'S-14', 'Creator: Work → Mar de Olivos collab → Cancel collab')] },
     { id: 'exp', name: 'Experience campaign', ref: '§2.8', preset: 'demo', steps: [T('business', 'B-15', 'Create → Experience'), T('business', 'B-17', 'Essentials, brief'), T('business', 'B-18', 'Offer + value'), T('business', 'B-20', 'Publish (no fee)'), T('business', 'B-25', 'Home → New applicants → Sofía → Accept (no payment)')] },
     { id: 'wallet', name: 'Creator wallet → withdraw', ref: '§2.10', preset: 'demo', steps: [T('creator', 'C-18', 'Profile → Earnings & wallet'), T('creator', 'C-27', 'Withdraw'), T('creator', 'C-28', 'Confirm the saved account → Withdraw'), T('creator', 'C-19', 'View withdrawal: 10% fee and IVA')] },
     { id: 'auto', name: '72h auto-release', ref: '§3 state machine', preset: 'demo', steps: [T('business', 'B-27', 'Business: open Clara\'s submission (61h left)'), T('business', 'S-12', 'Press “+72h” in the clock, then open the collab: auto-released')] }
@@ -124,7 +124,7 @@
     const all = [].concat(L.INVENTORY.Shared, L.INVENTORY.Business, L.INVENTORY.Creator, L.INVENTORY.Emails);
     const seen = all.filter((id) => L.seen.has(id)).length;
     const here = L.phones.map((p) => p.current());
-    let h = '<div class="brand"><h1>Lokaly</h1><span>Clickable prototype · v1 · two phones, one world</span><button type="button" class="sbtn side-close" data-menu="close">Done</button></div>' +
+    let h = '<div class="brand"><h1>Clasp</h1><span>Clickable prototype · v1 · two phones, one world</span><button type="button" class="sbtn side-close" data-menu="close">Done</button></div>' +
       '<div class="sec side-phone"><h2>Phone</h2><div class="row2" role="group" aria-label="Show phone">' + sbtn('Business · Marta', 'solo:business', L.focusRole === 'business') + sbtn('Creator · Lucía', 'solo:creator', L.focusRole === 'creator') + '</div><span class="ops">Two-finger tap anywhere opens these controls.</span><span class="ops" id="diag" style="opacity:.6;font-size:11px"></span></div>';
     if (L.tour) {
       const t = L.tour; let cur = -1;
@@ -134,7 +134,7 @@
     }
     h += '<div class="sec"><h2>World</h2><div class="sbtns">' + sbtn('Demo world', 'reset:demo') + sbtn('Fresh install', 'reset:fresh') + '</div>' +
       '<div class="ops" style="margin-top:10px"><span>App language (same as S-17) · ES is a draft pending native review</span><div class="row2" role="group" aria-label="App language">' + sbtn('English', 'lang:en', W.lang === 'en') + sbtn('Español', 'lang:es', W.lang === 'es') + '</div></div>' +
-      '<div class="ops" style="margin-top:10px"><span>Open questions for Omar / Lokaly (legal wording, IVA, C-19, disputes) · hide for clean demos</span><div class="row2">' + sbtn('Show open questions', 'oq', L.showOQ !== false) + '</div></div>' +
+      '<div class="ops" style="margin-top:10px"><span>Open questions for Omar / Clasp (legal wording, IVA, C-19, disputes) · hide for clean demos</span><div class="row2">' + sbtn('Show open questions', 'oq', L.showOQ !== false) + '</div></div>' +
       '<div class="ops" style="margin-top:10px"><span>Prototype hints · the phone you are not holding is the "other demo phone"; sign-in accepts any 6 digits (000000 shows the error)</span></div>' +
       '<div class="ops" style="margin-top:10px"><div class="row2"><span class="clock">' + L.dt(W.now) + '</span></div><div class="row2">' + sbtn('+1h', 'adv:1') + sbtn('+24h', 'adv:24') + sbtn('+72h', 'adv:72') + '</div><span>Time drives the 72h auto-release, reminders and withdrawal arrival.</span></div></div>';
     h += '<div class="sec"><h2>Flows</h2>' + L.TOURS.map((t) => '<button type="button" class="flow" data-side="tour:' + t.id + '"><b>' + esc(t.name) + '</b><span>' + esc(t.ref) + ' · ' + (t.preset === 'fresh' ? 'fresh install' : 'demo world') + '</span></button>').join('') + '</div>';
@@ -149,14 +149,14 @@
       '<span>Casa Brisa plan · 2 campaigns free, then €49.99/mo</span><div class="row2">' + [0, 1, 2].map((n) => sbtn('Free · ' + n + '/2 used', 'plan:' + n, !W.bizMe.sub && W.bizMe.freeUsed === n)).join('') + sbtn('Subscribed', 'plan:sub', !!W.bizMe.sub) + '</div>' +
       '</div></div>';
     const disp = W.collabs.filter((c) => c.status === 'disputed');
-    h += '<div class="sec"><h2>Lokaly ops · disputes</h2><div class="ops">' + (disp.length ? disp.map((c) => { const k = L.camp(c.campaignId); return '<div style="border:1px solid var(--desk-line);border-radius:12px;padding:10px" class="ops"><b style="color:var(--desk-ink)">' + esc(L.cr(c.creatorId).first + ' × ' + L.biz(k.bizId).name) + '</b><span>' + esc(k.title + ' · ' + (c.disputeReason || '')) + '</span><div class="row2">' + sbtn('Release to creator', 'resolve:' + c.id + ':rel') + sbtn('Refund business', 'resolve:' + c.id + ':ref') + '</div></div>'; }).join('') : '<span>No open disputes. Report a problem from a collab to see Lokaly\'s manual handling here (stand-in for the future admin panel).</span>') + '</div></div>';
+    h += '<div class="sec"><h2>Clasp ops · disputes</h2><div class="ops">' + (disp.length ? disp.map((c) => { const k = L.camp(c.campaignId); return '<div style="border:1px solid var(--desk-line);border-radius:12px;padding:10px" class="ops"><b style="color:var(--desk-ink)">' + esc(L.cr(c.creatorId).first + ' × ' + L.biz(k.bizId).name) + '</b><span>' + esc(k.title + ' · ' + (c.disputeReason || '')) + '</span><div class="row2">' + sbtn('Release to creator', 'resolve:' + c.id + ':rel') + sbtn('Refund business', 'resolve:' + c.id + ':ref') + '</div></div>'; }).join('') : '<span>No open disputes. Report a problem from a collab to see Clasp\'s manual handling here (stand-in for the future admin panel).</span>') + '</div></div>';
     h += '<div class="sec"><h2>Email outbox · ' + W.emails.length + '</h2>' + (W.emails.length ? W.emails.slice(0, 8).map((e, i) => '<button type="button" class="mail" data-side="mail:' + i + '"><b>' + e.id + ' · ' + esc(e.subject) + '</b><span>To ' + esc(e.to) + ' · ' + L.dt(e.at) + '</span></button>').join('') : '<span class="ops">Funding, releases, refunds, payouts and disputes send receipts here.</span>') + '</div>';
     h += '<div class="sec"><h2>Screen index</h2><div class="cov"><span class="num"><b>' + seen + '</b> / ' + all.length + ' seen</span><span class="cov-bar"><i style="width:' + (100 * seen / all.length) + '%"></i></span></div>' +
       Object.keys(L.INVENTORY).map((g) => '<div class="idx-g">' + g + '</div><div class="idx">' + L.INVENTORY[g].map((id) => {
         const name = id.startsWith('E-') ? L.EMAILS[id] : (L.S[id] ? L.S[id].name : '—');
         return '<button type="button" class="' + (L.seen.has(id) ? 'seen' : '') + (here.includes(id) ? ' here' : '') + '" data-side="jump:' + id + '"><i>' + id + '</i>' + esc(name) + '</button>';
       }).join('') + '</div>').join('') + '</div>';
-    h += '<div class="sec"><h2>About</h2><p class="ops" style="margin:0">Screen IDs match SCREEN_INVENTORY.md. B-00 / C-00 are the Home tabs from the reference prototype. Business model v2 (2026-10-26). Open questions wait on Omar / Lokaly (legal text, IVA, C-19, dispute rules). EN + draft ES: switch in S-02, S-17 or here; ES strings live in js/i18n/ and wait on the native reviewer.</p></div>';
+    h += '<div class="sec"><h2>About</h2><p class="ops" style="margin:0">Screen IDs match SCREEN_INVENTORY.md. B-00 / C-00 are the Home tabs from the reference prototype. Business model v2 (2026-10-26). Open questions wait on Omar / Clasp (legal text, IVA, C-19, dispute rules). EN + draft ES: switch in S-02, S-17 or here; ES strings live in js/i18n/ and wait on the native reviewer.</p></div>';
     side().innerHTML = h;
     const dg = document.getElementById('diag');
     if (dg) { const pr = document.createElement('div'); pr.style.cssText = 'position:fixed;top:0;height:env(safe-area-inset-top)'; document.body.appendChild(pr);
@@ -187,7 +187,7 @@
       else { L.setStatus(col, 'resolved_refunded'); if (k.type === 'paid') { W.txns.unshift({ id: L.id('tx'), bizId: b2.id, kind: 'refunded', collabId: col.id, amount: L.payB(k.rate) - L.stripeCost(L.payB(k.rate)), at: W.now, ref: 're_' + W.seq + 'Lk' }); L.email('E-05', b2.name, 'Refund after review · {title}', { col: col.id }, { title: { camp: k.id } }); } }
       L.post(b2.id, cr.id, { from: 'sys', deal: 'resolved', collabId: col.id }, k.id);
       L.email('E-08', b2.name, 'Dispute resolved · {title}', { col: col.id }, { title: { camp: k.id } }); L.email('E-08', cr.first, 'Dispute resolved · {title}', { col: col.id }, { title: { camp: k.id } });
-      ['business', 'creator'].forEach((r) => L.notify(r, { icon: 'shield', tone: 'mint', msg: 'Lokaly resolved the {title} collab', p: { title: { camp: k.id } }, go: 'S-12:' + col.id }));
+      ['business', 'creator'].forEach((r) => L.notify(r, { icon: 'shield', tone: 'mint', msg: 'Clasp resolved the {title} collab', p: { title: { camp: k.id } }, go: 'S-12:' + col.id }));
       L.emit();
     }
     else if (a === 'mail') L.openEmail(W.emails[+x]);
